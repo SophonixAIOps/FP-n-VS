@@ -1,26 +1,393 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   FRAME & STORY STUDIO — DESIGN TOKENS
+   The single source of truth for the visual system.
+   Do not hardcode colour, type, spacing or easing anywhere else.
+   ========================================================================== */
+
+@theme {
+  /* ---------------------------------------------------------------------
+     COLOUR
+     A warm darkroom neutral palette. No pure black, no pure white — every
+     value carries a little warmth so photography sits inside the page
+     rather than on top of it. Colour comes from the imagery, not the UI.
+     --------------------------------------------------------------------- */
+
+  /* Raw ramp — reference only. Use the semantic tokens below in components. */
+  --color-ink-900: #14110f;
+  --color-ink-800: #1f1b18;
+  --color-ink-700: #2b2622;
+  --color-stone-600: #4a423b;
+  --color-stone-500: #6e655c;
+  --color-stone-400: #8a8178;
+  --color-stone-300: #b3aaa0;
+  --color-stone-200: #ded7cc;
+  --color-stone-100: #ece6dd;
+  --color-ivory-200: #f1ece4;
+  --color-ivory-100: #faf8f5;
+  --color-clay-600: #8a6a47;
+  --color-clay-500: #a8865f;
+
+  /* Semantic — these are what components consume */
+  --color-bg: #faf8f5;
+  --color-bg-dark: #14110f;
+  --color-surface: #f1ece4;
+  --color-surface-dark: #1f1b18;
+  --color-text: #14110f;
+  --color-text-muted: #6e655c;
+  --color-text-inverse: #faf8f5;
+  --color-text-inverse-muted: #a79d92;
+  --color-border: #ded7cc; /* decorative rules only — not a UI boundary */
+  --color-border-strong: #8a8178; /* 3.61:1 on --color-bg, clears WCAG 1.4.11 */
+  --color-border-inverse: #2b2622;
+  --color-inverse: #14110f;
+  --color-accent: #8a6a47;
+  --color-accent-soft: #a8865f;
+
+  /* State */
+  --color-success: #4a6250;
+  --color-error: #8c4a3f;
+  --color-focus: #8a6a47;
+
+  /* ---------------------------------------------------------------------
+     TYPOGRAPHY
+     Instrument Serif for display. Inter for everything functional.
+     Two families, few weights. Scale is fluid — headlines are sized to be
+     compositional elements, not labels.
+     --------------------------------------------------------------------- */
+  --font-display: var(--font-instrument-serif), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display-xl: clamp(3.25rem, 10.5vw, 10.5rem);
+  --text-display-xl--line-height: 0.92;
+  --text-display-xl--letter-spacing: -0.03em;
+
+  --text-display-lg: clamp(2.75rem, 7.5vw, 7rem);
+  --text-display-lg--line-height: 0.95;
+  --text-display-lg--letter-spacing: -0.025em;
+
+  --text-display-md: clamp(2.25rem, 5vw, 4.5rem);
+  --text-display-md--line-height: 1;
+  --text-display-md--letter-spacing: -0.02em;
+
+  --text-h1: clamp(2rem, 4.2vw, 3.5rem);
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.02em;
+
+  --text-h2: clamp(1.75rem, 3vw, 2.625rem);
+  --text-h2--line-height: 1.12;
+  --text-h2--letter-spacing: -0.015em;
+
+  --text-h3: clamp(1.3125rem, 1.9vw, 1.75rem);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.01em;
+
+  --text-body-lg: clamp(1.0625rem, 1.15vw, 1.25rem);
+  --text-body-lg--line-height: 1.62;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.68;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.6;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.22em;
+
+  --text-nav: 0.8125rem;
+  --text-nav--line-height: 1;
+  --text-nav--letter-spacing: 0.14em;
+
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.08em;
+
+  --tracking-editorial: -0.02em;
+  --tracking-wide-ui: 0.14em;
+  --tracking-eyebrow: 0.22em;
+
+  /* ---------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------- */
+  --container-narrow: 46rem; /* reading measure — ~68ch */
+  --container-content: 75rem; /* standard editorial column */
+  --container-wide: 96rem; /* gallery / wide compositions */
+
+  --spacing-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --spacing-section: clamp(5rem, 12vw, 12rem);
+  --spacing-section-sm: clamp(3.5rem, 7vw, 6rem);
+  --spacing-section-lg: clamp(7rem, 17vw, 17rem);
+
+  /* ---------------------------------------------------------------------
+     IMAGE ASPECT RATIOS
+     A fixed vocabulary. Every image on the site uses one of these.
+     --------------------------------------------------------------------- */
+  --aspect-panorama: 21 / 9;
+  --aspect-cinema: 16 / 9;
+  --aspect-wide: 3 / 2;
+  --aspect-square: 1 / 1;
+  --aspect-editorial: 4 / 5;
+  --aspect-portrait: 3 / 4;
+  --aspect-tall: 2 / 3;
+
+  /* ---------------------------------------------------------------------
+     RADIUS — editorial, essentially square. Never rounded SaaS UI.
+     --------------------------------------------------------------------- */
+  --radius-none: 0px;
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-pill: 999px; /* permitted only on the cursor and small chips */
+
+  /* ---------------------------------------------------------------------
+     MOTION EASING
+     --------------------------------------------------------------------- */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mask: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-in-out-editorial: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --------------------------------------------------------------------------
+   NON-NAMESPACED TOKENS
+   Tailwind v4 has no `duration` or `z-index` theme namespace, so these live
+   on :root. Durations are mirrored in src/lib/motion.ts for JS animation —
+   change both together.
+   -------------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --duration-instant: 120ms;
+  --duration-fast: 240ms;
+  --duration-standard: 420ms;
+  --duration-slow: 720ms;
+  --duration-cinematic: 1200ms;
+
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-overlay: 400;
+  --z-header: 500;
+  --z-menu: 600;
+  --z-modal: 700;
+  --z-cursor: 900;
+  --z-transition: 1000;
+
+  --header-height: 4.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (min-width: 64rem) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --header-height: 5.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.68;
+    /* Horizontal-scroll galleries must never leak page-level overflow. */
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-ink-900);
+    color: var(--color-ivory-100);
+  }
+
+  /* A single, consistent focus treatment across the whole site. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: var(--radius-xs);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Headings default to the display face; utilities can override. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+}
+
+/* ==========================================================================
+   TYPOGRAPHY CLASSES
+   Named editorial styles. Prefer these over ad-hoc utility stacks so the
+   hierarchy stays consistent across pages.
+   ========================================================================== */
+
+@layer components {
+  .type-display-xl,
+  .type-display-lg,
+  .type-display-md,
+  .type-h1,
+  .type-h2,
+  .type-h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+
+  .type-display-xl {
+    font-size: var(--text-display-xl);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+  .type-display-lg {
+    font-size: var(--text-display-lg);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+  }
+  .type-display-md {
+    font-size: var(--text-display-md);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .type-h1 {
+    font-size: var(--text-h1);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+  .type-h2 {
+    font-size: var(--text-h2);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  .type-h3 {
+    font-size: var(--text-h3);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .type-body-lg {
+    font-size: var(--text-body-lg);
+    line-height: 1.62;
+  }
+  .type-body {
+    font-size: var(--text-body);
+    line-height: 1.68;
+  }
+  .type-small {
+    font-size: var(--text-small);
+    line-height: 1.6;
+  }
+  .type-caption {
+    font-size: var(--text-caption);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .type-eyebrow {
+    font-size: var(--text-eyebrow);
+    line-height: 1;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .type-nav {
+    font-size: var(--text-nav);
+    line-height: 1;
+    letter-spacing: var(--tracking-wide-ui);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .type-meta {
+    font-size: var(--text-meta);
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Display italic is the one permitted flourish — used for a single
+     emphasised word inside a headline, never for whole paragraphs. */
+  .type-emphasis {
+    font-style: italic;
+  }
+}
+
+/* ==========================================================================
+   LAYOUT UTILITIES
+   ========================================================================== */
+
+@utility container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+@utility container-content {
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+@utility container-wide {
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+/* Full-bleed: escape the current container to the viewport edge. */
+@utility full-bleed {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Content must remain fully visible and legible with motion disabled.
+   Reveal primitives also check this in JS; this block is the CSS backstop.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Any element relying on a JS reveal must still paint. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
 }
