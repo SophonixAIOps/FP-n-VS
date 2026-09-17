@@ -4,6 +4,7 @@ import { Eyebrow, Lead, Meta, SectionHeading } from "@/components/Typography";
 import { Wordmark } from "@/components/Wordmark";
 import { EditorialLink, EditorialButton } from "@/components/EditorialLink";
 import { MagneticButton } from "@/components/MagneticButton";
+import { ImageOverlay } from "@/components/EditorialImage";
 import { images } from "@/lib/images";
 
 export const metadata: Metadata = { title: "Components" };
@@ -45,22 +46,16 @@ export default function ComponentsPage() {
         </SpecRow>
 
         <SpecRow label="Over photography" note="tone=light + scrim">
-          <div className="relative overflow-hidden bg-ink-900">
-            <img
-              src={`https://images.unsplash.com/${images.hero.id}?auto=format&fit=crop&ar=21%3A9&crop=entropy&w=1280&q=74`}
-              alt=""
-              className="aspect-panorama w-full object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-ink-900/70 to-ink-900/15"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Wordmark size="lg" tone="light" withDescender className="items-center" />
-            </div>
-          </div>
+          <ImageOverlay
+            image={images.hero}
+            size="content"
+            reveal="none"
+            position="center"
+            scrim="strong"
+            ar={{ desktop: "panorama", mobile: "cinema" }}
+          >
+            <Wordmark size="lg" tone="light" withDescender className="items-center" />
+          </ImageOverlay>
           <p className="type-caption mt-3">
             A scrim is mandatory over photography. Legibility never depends on
             which image happens to load.
@@ -186,7 +181,7 @@ export default function ComponentsPage() {
         <ul className="type-small grid gap-2 text-text-muted">
           {[
             "Transparent with no border over a hero, so photography runs to the top edge",
-            "Past 24px it takes an ivory background, a hairline border and a 2px blur",
+            "Past 24px it takes a solid ivory background and a hairline border",
             "Text resolves to dark once settled — contrast never depends on the image behind it",
             "Nav links sit at 65% opacity and come up to full on hover, with a rule that wipes in",
             "The active route holds its rule open permanently",

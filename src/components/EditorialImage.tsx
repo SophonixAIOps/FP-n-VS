@@ -134,8 +134,15 @@ export function EditorialImage({
 
   return (
     <figure className={cn("m-0", fill && "absolute inset-0", className)}>
+      {/*
+       * The element carrying `whileInView` must never be the masked one. A mask
+       * that starts at `inset(100% …)` paints nothing, and Chrome reports an
+       * empty intersection rect for it — the observer never crosses its
+       * threshold, so the reveal that would open the mask never fires and the
+       * image stays invisible for good. Observing an unclipped parent and
+       * letting the variant label propagate down breaks that deadlock.
+       */}
       <motion.div
-        data-reveal
         className={cn(
           // The warm surface tone shows through until the image paints, so a
           // slow connection sees the palette rather than a white hole.
@@ -143,32 +150,37 @@ export function EditorialImage({
           fill ? "h-full w-full" : aspectClass[ratio.mobile],
           !fill && aspectClassMd[ratio.desktop]
         )}
-        variants={wrapperVariants}
         initial="hidden"
         whileInView="visible"
         viewport={viewport}
       >
         <motion.div
+          data-reveal
           className="absolute inset-0"
-          variants={reduced ? undefined : imageDrift}
+          variants={wrapperVariants}
         >
-          <picture>
-            <source
-              media={DESKTOP_BREAKPOINT}
-              srcSet={desktopSrcSet}
-              sizes={sizePresets[size]}
-            />
-            <img
-              src={fallback}
-              srcSet={mobileSrcSet}
-              sizes={sizePresets[size]}
-              alt={image.alt}
-              loading={priority ? "eager" : "lazy"}
-              fetchPriority={priority ? "high" : "auto"}
-              decoding={priority ? "sync" : "async"}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </picture>
+          <motion.div
+            className="absolute inset-0"
+            variants={reduced ? undefined : imageDrift}
+          >
+            <picture>
+              <source
+                media={DESKTOP_BREAKPOINT}
+                srcSet={desktopSrcSet}
+                sizes={sizePresets[size]}
+              />
+              <img
+                src={fallback}
+                srcSet={mobileSrcSet}
+                sizes={sizePresets[size]}
+                alt={image.alt}
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={priority ? "high" : "auto"}
+                decoding={priority ? "sync" : "async"}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </picture>
+          </motion.div>
         </motion.div>
       </motion.div>
 
@@ -198,6 +210,60 @@ export function FullBleedImage({
       size={size}
       className={cn("full-bleed", className)}
     />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+type OverlayPosition = "center" | "bottom-left" | "bottom-center";
+
+const overlayPositionClass: Record<OverlayPosition, string> = {
+  center: "items-center justify-center text-center",
+  "bottom-left": "items-end justify-start text-left",
+  "bottom-center": "items-end justify-center text-center",
+};
+
+const scrimClass = {
+  none: "",
+  soft: "bg-gradient-to-t from-ink-900/55 via-ink-900/15 to-transparent",
+  strong: "bg-gradient-to-t from-ink-900/80 via-ink-900/40 to-ink-900/15",
+};
+
+/**
+ * Photograph carrying text.
+ *
+ * The scrim is not optional styling — it is what makes the type legible
+ * regardless of which image loads behind it. Set `scrim="none"` only when the
+ * overlay content is itself decorative.
+ */
+export function ImageOverlay({
+  children,
+  scrim = "soft",
+  position = "bottom-left",
+  className,
+  ...imageProps
+}: EditorialImageProps & {
+  children: React.ReactNode;
+  scrim?: keyof typeof scrimClass;
+  position?: OverlayPosition;
+}) {
+  return (
+    <div className={cn("relative isolate overflow-hidden", className)}>
+      <EditorialImage {...imageProps} />
+
+      {scrim !== "none" && (
+        <div aria-hidden="true" className={cn("absolute inset-0", scrimClass[scrim])} />
+      )}
+
+      <div
+        className={cn(
+          "absolute inset-0 flex p-6 sm:p-10",
+          overlayPositionClass[position]
+        )}
+      >
+        <div className="text-text-inverse">{children}</div>
+      </div>
+    </div>
   );
 }
 

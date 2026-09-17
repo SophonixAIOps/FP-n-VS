@@ -14,15 +14,35 @@ type EyebrowProps = {
   children: React.ReactNode;
   /** Draws a short rule before the label. */
   rule?: boolean;
+  /**
+   * Ground the label sits on. Pass this rather than a `text-*` class — both
+   * would be Tailwind utilities, and `cn` only concatenates, so the winner
+   * would be decided by stylesheet order rather than by the call site.
+   *
+   * `inherit` takes the colour of its container — use that over photography.
+   */
+  tone?: "dark" | "light" | "inherit";
   className?: string;
 };
 
+const eyebrowTone = {
+  dark: "text-text-muted",
+  light: "text-text-inverse-muted",
+  inherit: "text-current",
+} as const;
+
 /** Small tracked-out label. Names a section without competing with it. */
-export function Eyebrow({ children, rule = false, className }: EyebrowProps) {
+export function Eyebrow({
+  children,
+  rule = false,
+  tone = "dark",
+  className,
+}: EyebrowProps) {
   return (
     <span
       className={cn(
-        "type-eyebrow inline-flex items-center gap-3 text-text-muted",
+        "type-eyebrow inline-flex items-center gap-3",
+        eyebrowTone[tone],
         className
       )}
     >

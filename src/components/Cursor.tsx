@@ -42,8 +42,15 @@ export function Cursor() {
   const springY = useSpring(y, { stiffness: 900, damping: 45, mass: 0.35 });
 
   useEffect(() => {
-    // Only for precise pointers that can actually hover.
-    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
+    /*
+     * Width belongs in this query, not in a `md:` class. The class would hide
+     * the dot while this effect still set `cursor: none` on the document, so a
+     * desktop window dragged under 48rem lost its pointer altogether. One
+     * condition has to govern both halves.
+     */
+    const query = window.matchMedia(
+      "(hover: hover) and (pointer: fine) and (min-width: 48rem)"
+    );
     const update = () => setEnabled(query.matches);
     update();
     query.addEventListener("change", update);
@@ -93,7 +100,7 @@ export function Cursor() {
   return (
     <motion.div
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 hidden md:block"
+      className="pointer-events-none fixed left-0 top-0"
       style={{ x: springX, y: springY, zIndex: "var(--z-cursor)" }}
       animate={{ opacity: visible ? 1 : 0 }}
       transition={{ duration: duration.fast }}

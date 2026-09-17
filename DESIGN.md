@@ -155,6 +155,8 @@ the `.type-*` classes rather than assembling utilities ad hoc.
 | `.type-eyebrow` | `0.6875rem` | 1 | 0.22em | Uppercase section labels |
 | `.type-nav` | `0.8125rem` | 1 | 0.14em | Navigation, buttons |
 | `.type-meta` | `0.75rem` | 1.4 | 0.08em | Image metadata rails (muted) |
+| `.type-label` | `0.8125rem` | 1.4 | 0.04em | Form field labels — sentence case, not uppercase |
+| `.type-helper` | `0.8125rem` | 1.5 | — | Field hint and validation text (muted) |
 
 `.type-emphasis` applies display italic. It is the **one permitted flourish** —
 for a single emphasised word inside a headline, never for whole paragraphs.
@@ -203,6 +205,38 @@ stepping at breakpoints.
 - **Generous section separation.** Density is low by design; let sections breathe.
 - **Full-bleed as punctuation.** An edge-to-edge image is a paragraph break, not a default.
 - Twelve-column grid where a grid is genuinely needed; offsets via `col-start`.
+
+### Structural primitives
+
+Page code composes from these rather than repeating container and section
+utilities by hand — that repetition is how an editorial rhythm drifts out of
+alignment one section at a time.
+
+| Primitive | Role |
+| --- | --- |
+| `Container` | Centres at `narrow` / `content` / `wide` / `full` and applies the gutter |
+| `Section` | A band of the page: vertical rhythm (`space`) plus ground tone (`surface`). Takes a `container` prop as shorthand, or `false` for full-bleed children |
+| `NarrowContent` | The reading measure, for long-form copy |
+| `FullBleedSection` | Escapes the container to the viewport edge |
+| `SplitLayout` | Two unequal columns — `media-wide` (1.4fr/1fr), `text-wide`, or `even` |
+| `MediaTextLayout` | The common pairing: a frame beside a ~42ch column, vertically centred |
+| `EditorialGrid` + `GridItem` | Twelve columns with `span`, `start`, `spanMobile` and `offsetTop` |
+| `PageIntro` | Opening block: eyebrow, title, one short paragraph |
+| `Divider` | Thin editorial rule, hairline or strong, light or dark |
+
+Two decisions worth knowing:
+
+- **`SplitLayout reverse` swaps columns with grid order, not `flex-direction`.**
+  The DOM order stays as authored, so reading order and tab order do not
+  desynchronise from the visual order.
+- **`GridItem offsetTop` collapses to zero below `md`.** The vertical stagger is
+  what makes the grid feel composed rather than tabular, but on a single-column
+  mobile layout it would just be stray whitespace.
+
+`Section surface="dark"` sets the inverse text colour on the wrapper so
+descendants inherit it. Note the exception: `.type-caption`, `.type-meta` and
+`.type-helper` carry their own colour, so on a dark ground they must be given
+`text-text-inverse-muted` explicitly.
 
 ### Radius
 
@@ -362,6 +396,15 @@ Slow, intentional, cinematic, restrained. The page should feel like it is moving
 wrapper. It is what gives a reveal its cinematic weight. Always pair it with
 `maskUp` or `maskRight`.
 
+> **Structural rule — the observed element must never be the masked one.**
+> `maskUp` and `maskRight` start at `inset(100% …)`, which paints nothing.
+> Chrome reports an *empty* intersection rect for such an element, so an
+> IntersectionObserver attached to it never crosses its threshold — the reveal
+> that would open the mask never fires and the image stays invisible
+> permanently. Put `whileInView` on an unclipped wrapper and let the variant
+> label propagate to an inner `[data-reveal]` child. `clipExpand` starts at
+> `inset(14% …)` and so never hit this, which is exactly why it is easy to miss.
+
 For text: `fadeUp` (opacity + 24px rise) is the default; `fade` is for anything
 secondary.
 
@@ -445,9 +488,14 @@ is no hidden state to discover.
 Desktop only. An 8px dot at rest, expanding to a 76px labelled disc over
 anything carrying `data-cursor`. Labels: `view`, `play`, `inquire`.
 
-Mounts **only** for `(hover: hover) and (pointer: fine)`, and never under
-reduced motion. It hides the native cursor only while it is actually running, so
-touch users keep the native cursor untouched.
+Mounts **only** for `(hover: hover) and (pointer: fine) and (min-width: 48rem)`,
+and never under reduced motion. It hides the native cursor only while it is
+actually running, so touch users keep the native cursor untouched.
+
+The width belongs in that media query and **not** in a `md:` utility class. A
+class hides the dot while the effect that sets `cursor: none` still runs, and a
+desktop window dragged narrower than 48rem then has no visible pointer at all.
+One condition governs mounting and cursor-hiding together.
 
 ### Focus
 
@@ -478,7 +526,9 @@ Proof: `/system/components`
 Fixed. `--header-height` is 4.5rem, rising to 5.5rem at ≥64rem.
 
 - Transparent with no border over a hero, so photography runs to the top edge.
-- Past **24px** of scroll it takes an ivory background, a hairline border and a 2px blur.
+- Past **24px** of scroll it takes a **solid** ivory background and a hairline border.
+  Opaque, not translucent: a translucent bar lets display-scale serif underneath
+  read straight through it, however much backdrop blur is applied.
 - Text resolves to dark once settled — **contrast never depends on the image behind it**.
 - Nav links sit at 65% opacity, coming to full on hover with a rule that wipes in.
 - The active route holds its rule open permanently.
@@ -520,6 +570,22 @@ when a size does.
 
 `overflow-x: hidden` sits on the body so horizontal-scroll galleries never leak
 page-level overflow.
+
+### Overflow discipline
+
+Target widths: 320 · 375 · 414 · 768 · 1024 · 1280 · 1440.
+
+The system is structurally resistant to horizontal overflow because type,
+spacing and gutters are all `clamp()`-based and widths are expressed as
+`max-width` rather than `width`. A scan of the compiled CSS confirms **no fixed
+pixel width above 320px and no element `min-width` at all** — the only large
+values are media-query breakpoints.
+
+The one genuine risk class is text that cannot wrap. The wordmark is set
+`whitespace-nowrap`, and at a fixed `2rem` its `lg` size measured wider than the
+~280px content box available on a 320px screen. Its size is therefore fluid:
+`clamp(1.375rem, 6vw, 2rem)`. **Any future `whitespace-nowrap` needs the same
+treatment or a smaller floor.**
 
 ---
 
@@ -563,8 +629,14 @@ hidden.
 | --- | --- |
 | `Wordmark` | The typographic identity, 3 sizes × 2 tones |
 | `Typography` | `Eyebrow`, `Lead`, `Meta`, `SectionHeading` |
+| `Container` / `Section` / `NarrowContent` / `FullBleedSection` | Measure, rhythm and ground tone |
+| `SplitLayout` / `MediaTextLayout` | Two-column editorial pairings |
+| `EditorialGrid` / `GridItem` | Twelve-column grid with intentional offsets |
+| `PageIntro` / `Divider` | Page opening block and the editorial rule |
 | `EditorialImage` | The core image primitive — art-directed `<picture>`, reserved ratio, reveal |
+| `ImageOverlay` | Photograph carrying text, with a structural scrim |
 | `FullBleedImage` / `ImageCaption` | Edge-to-edge variant and the metadata rail |
+| `ProjectMeta` | Title, credit line, description and view link — fields collapse when absent |
 | `PortfolioProject` | Framed project with hover/focus metadata overlay |
 | `EditorialLink` / `EditorialButton` | The link and button language |
 | `MagneticButton` | Pointer-following CTA |
@@ -576,6 +648,35 @@ hidden.
 
 Libraries: `src/lib/motion.ts` (motion), `src/lib/images.ts` (imagery),
 `src/lib/cn.ts` (class merge).
+
+### `cn` concatenates — it does not merge
+
+`cn` is `parts.filter(Boolean).join(" ")`, not `tailwind-merge`. Two utilities
+of the same kind do not resolve by call-site order; the browser resolves them by
+**stylesheet order**, so a `className` passed in from outside can silently lose
+to one baked into the component.
+
+Consequences, both of which bit during Phase 1 QA:
+
+- A component that bakes in a `text-*`, `max-w-*` or `px-*` utility cannot be
+  overridden by passing the competing utility. Give it a **prop with a lookup
+  table** instead — that is why `Eyebrow`, `Wordmark`, `Divider`, `ProjectMeta`
+  and `EditorialButton` all take `tone` rather than accepting a colour class.
+- Classes set in `@layer components` (`.type-meta`, `.type-caption`,
+  `.type-helper` all set `color`) *are* reliably beaten by a utility, because
+  utilities win against the components layer by design. Only utility-vs-utility
+  collisions are ambiguous.
+
+`Eyebrow` takes `tone="dark" | "light" | "inherit"`. Use `light` on a dark
+surface and `inherit` over photography, where the container sets the colour.
+
+### Measure and the `ch` unit
+
+`ch` resolves against **the element's own font-size**. A `max-w-[Nch]` on a
+wrapper is measured in the wrapper's font — usually the body face — so it pins
+every descendant, including display-scale headings, to one fixed pixel width at
+every viewport. Put the measure on the element whose font it is meant to
+describe.
 
 ---
 
@@ -607,6 +708,7 @@ production pages.
 | `/system/imagery` | Crop vocabulary, responsive art direction, four reveals, portfolio hover, asymmetric composition, selection + performance rules |
 | `/system/motion` | Duration scale with replay, plotted easing curves, text reveals, page transition, reduced motion, prohibited list |
 | `/system/components` | Wordmark, links, buttons + states, focus, header, mobile menu, cursor, metadata rail |
+| `/system/layout-system` | Containers, section rhythm, split layouts, the editorial grid, dividers, project metadata, form typography, dark surface, image overlay |
 
 `/` is the Phase 0 index. It is deliberately **not** the homepage — it exists to
 prove the three things that can only be judged in situ (the header over

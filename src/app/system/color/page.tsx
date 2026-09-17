@@ -120,7 +120,7 @@ export default function ColorPage() {
           </div>
 
           <div className="bg-bg-dark p-8 md:p-12">
-            <Eyebrow rule className="text-text-inverse-muted">
+            <Eyebrow rule tone="light">
               Dark
             </Eyebrow>
             <h3 className="type-h1 mt-6 font-display text-text-inverse">

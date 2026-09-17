@@ -49,6 +49,13 @@ const specimens = [
     title: "Components",
     description: "Wordmark, links, buttons and the full interaction state set.",
   },
+  {
+    href: "/system/layout-system",
+    number: "06",
+    title: "Layout",
+    description:
+      "Containers, section rhythm, the editorial grid and its offsets.",
+  },
 ];
 
 export default function Page() {
@@ -77,7 +84,7 @@ export default function Page() {
           <div className="absolute inset-0 flex items-end">
             <div className="mx-auto w-full max-w-wide px-gutter pb-[clamp(3rem,8vw,6rem)]">
               <Reveal variant="fadeUp" delay={0.35}>
-                <Eyebrow className="text-text-inverse opacity-75" rule>
+                <Eyebrow tone="light" rule>
                   Phase 0 · Design System
                 </Eyebrow>
               </Reveal>
@@ -105,7 +112,7 @@ export default function Page() {
             <Reveal>
               <Eyebrow rule>The System</Eyebrow>
               <SectionHeading level="display-md" as="h2" className="mt-6">
-                Five specimens.
+                Six specimens.
               </SectionHeading>
               <Lead className="mt-6">
                 Each isolates one part of the language so it can be judged on its

@@ -20,10 +20,14 @@ type WordmarkProps = {
   className?: string;
 };
 
+/**
+ * `lg` is fluid because the mark is set `whitespace-nowrap` — at a fixed 2rem
+ * it measures wider than the content box on a 320px screen and clips.
+ */
 const sizeClasses = {
   sm: "text-[0.9375rem] tracking-[0.16em]",
   md: "text-[1.25rem] tracking-[0.13em]",
-  lg: "text-[2rem] tracking-[0.1em]",
+  lg: "text-[clamp(1.375rem,6vw,2rem)] tracking-[0.1em]",
 } as const;
 
 const toneClasses = {

@@ -107,6 +107,13 @@
   --text-meta--line-height: 1.4;
   --text-meta--letter-spacing: 0.08em;
 
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.04em;
+
+  --text-helper: 0.8125rem;
+  --text-helper--line-height: 1.5;
+
   --tracking-editorial: -0.02em;
   --tracking-wide-ui: 0.14em;
   --tracking-eyebrow: 0.22em;
@@ -322,6 +329,22 @@
     line-height: 1.4;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Form field label. Sentence case, not uppercase — a form should read as
+     language, not as UI chrome. */
+  .type-label {
+    font-size: var(--text-label);
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+
+  /* Hint and validation text beneath a field. */
+  .type-helper {
+    font-size: var(--text-helper);
+    line-height: 1.5;
     color: var(--color-text-muted);
   }
 

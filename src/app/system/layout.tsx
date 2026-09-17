@@ -7,6 +7,7 @@ const sections = [
   { href: "/system/imagery", label: "Imagery" },
   { href: "/system/motion", label: "Motion" },
   { href: "/system/components", label: "Components" },
+  { href: "/system/layout-system", label: "Layout" },
 ];
 
 export default function SystemLayout({

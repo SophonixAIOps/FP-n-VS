@@ -61,8 +61,10 @@ export function Header({ tone = "dark", activeHref }: HeaderProps) {
           "fixed inset-x-0 top-0",
           "h-[var(--header-height)]",
           "transition-[background-color,border-color,color] duration-[var(--duration-slow)] ease-editorial",
+          // Opaque, not translucent: at 92% a 2px blur is not enough to stop
+          // display-scale serif underneath from reading straight through the bar.
           scrolled
-            ? "border-b border-border bg-bg/92 backdrop-blur-[2px]"
+            ? "border-b border-border bg-bg"
             : "border-b border-transparent bg-transparent",
           onLight ? "text-text" : "text-text-inverse"
         )}
