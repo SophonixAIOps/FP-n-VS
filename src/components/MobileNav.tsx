@@ -35,6 +35,7 @@ export function MobileNav({ open, onClose, items, triggerRef }: MobileNavProps) 
   const reduced = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const hasOpened = useRef(false);
 
   // Lock background scroll while the overlay is open.
   useEffect(() => {
@@ -46,11 +47,14 @@ export function MobileNav({ open, onClose, items, triggerRef }: MobileNavProps) 
     };
   }, [open]);
 
-  // Move focus in on open, and back to the trigger on close.
+  // Move focus in on open, and back to the trigger on close. The guard matters:
+  // without it the closed branch also runs on mount, stealing focus to the Menu
+  // trigger on every page load.
   useEffect(() => {
     if (open) {
+      hasOpened.current = true;
       closeRef.current?.focus();
-    } else {
+    } else if (hasOpened.current) {
       triggerRef.current?.focus();
     }
     // Focus should only move in response to the open state changing.

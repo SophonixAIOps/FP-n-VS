@@ -548,6 +548,20 @@ collapse to a plain fade under reduced motion.
 Close on open and back to the trigger on dismiss · Tab is trapped within the
 panel · Escape dismisses · background scroll is locked.
 
+### Footer
+
+Two bands, and the first one is optional.
+
+- **The invitation** — dark ground, eyebrow, a Display M line and one solid CTA
+  beside the address. This is the site's single ask; it is not repeated further
+  up the page.
+- **The meta rail** — ivory hairline band carrying the wordmark with its
+  descender, an optional nav slot, and the colophon.
+
+Pages that already close on their own composition pass `cta={false}` and keep
+only the rail, so the invitation is never made twice. The specimen routes do
+this — a design system does not sell commissions.
+
 ---
 
 ## 11. Responsive
@@ -641,6 +655,8 @@ hidden.
 | `EditorialLink` / `EditorialButton` | The link and button language |
 | `MagneticButton` | Pointer-following CTA |
 | `Reveal` / `RevealGroup` / `RevealItem` | Scroll reveal wrappers |
+| `SiteShell` | Header, `main` and footer composed once — a page states its `surface` and the shell derives the rest |
+| `SiteFooter` | The closing invitation band plus the meta rail, with an optional nav slot |
 | `Header` / `MobileNav` | Navigation |
 | `PageTransition` | Route veil + content settle |
 | `Cursor` | The custom cursor |
@@ -669,6 +685,25 @@ Consequences, both of which bit during Phase 1 QA:
 
 `Eyebrow` takes `tone="dark" | "light" | "inherit"`. Use `light` on a dark
 surface and `inherit` over photography, where the container sets the colour.
+
+### `tone` is ink; `surface` is ground
+
+Two axes, never one. They are different words because they describe different
+things, and they look inverted at a call site because ink and ground **are**
+opposite — `tone="light"` belongs on `surface="dark"`.
+
+| Prop | Means | Components |
+| --- | --- | --- |
+| `tone` | The **ink** — what colour the marks are | `Wordmark`, `Eyebrow`, `EditorialLink`, `EditorialButton`, `Divider`, `ProjectMeta`, `Header` |
+| `surface` | The **ground** — what colour it sits on | `Section`, `FullBleedSection` |
+
+So `<Header tone="light" />` means light ink, which is what you want over a dark
+photograph; `<Section surface="dark">` means a dark ground, which is what you
+want behind light ink. Reading one as the other inverts every colour decision on
+the page.
+
+Prefer not to set both by hand. `SiteShell` takes the `surface` and derives the
+header's `tone` from it, so a page states its ground once.
 
 ### Measure and the `ch` unit
 

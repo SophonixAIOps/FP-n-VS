@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Header } from "@/components/Header";
+import { SiteShell } from "@/components/SiteShell";
 
 const sections = [
   { href: "/system/typography", label: "Typography" },
@@ -16,15 +16,13 @@ export default function SystemLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <Header tone="dark" />
-
-      <main className="flex-1 pt-[var(--header-height)]">{children}</main>
-
-      <footer className="border-t border-border">
+    <SiteShell
+      surface="light"
+      cta={false}
+      footerNav={
         <nav
           aria-label="Specimens"
-          className="mx-auto flex max-w-wide flex-wrap items-center gap-x-8 gap-y-3 px-gutter py-10"
+          className="flex flex-wrap items-center gap-x-8 gap-y-3 lg:justify-end"
         >
           <Link href="/" className="type-meta text-text">
             &larr; Index
@@ -39,7 +37,9 @@ export default function SystemLayout({
             </Link>
           ))}
         </nav>
-      </footer>
-    </>
+      }
+    >
+      {children}
+    </SiteShell>
   );
 }
