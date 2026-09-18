@@ -21,6 +21,12 @@ export type ProjectMetaProps = {
   tone?: "dark" | "light";
   /** Visual size of the title. */
   level?: "h3" | "h2" | "display-md";
+  /**
+   * The heading tag. Separate from `level` because a piece shown ahead of its
+   * section — a cover frame, say — still has to be the outline's h2 however
+   * large it is set.
+   */
+  as?: "h2" | "h3";
   className?: string;
 };
 
@@ -33,6 +39,7 @@ export function ProjectMeta({
   href,
   tone = "dark",
   level = "h3",
+  as = "h3",
   className,
 }: ProjectMetaProps) {
   const credit = [category, location, date].filter(Boolean).join(" · ");
@@ -48,7 +55,7 @@ export function ProjectMeta({
     >
       <SectionHeading
         level={level}
-        as="h3"
+        as={as}
         className={light ? "text-text-inverse" : undefined}
       >
         {title}

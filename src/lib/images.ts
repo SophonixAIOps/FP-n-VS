@@ -262,6 +262,46 @@ export const images = {
       location: "Hudson Valley, New York",
       year: "2022",
     },
+    {
+      id: "photo-1438761681033-6461ffad8d80",
+      alt: "A young woman at the edge of still water in flat evening light, looking straight to camera with the far shore soft behind her",
+      category: "portfolio",
+      orientation: "landscape",
+      ar: { desktop: "editorial", mobile: "portrait" },
+      // Native framing is landscape. Entropy reads the empty water as the
+      // region worth keeping and crops her out of an upright frame.
+      crop: "faces",
+      title: "Between Moments",
+      year: "2024",
+    },
+    {
+      id: "photo-1499996860823-5214fcc65f8f",
+      alt: "A young man indoors in soft window light, freckled and unsmiling, holding the camera's gaze",
+      category: "portfolio",
+      orientation: "portrait",
+      ar: { desktop: "portrait", mobile: "editorial" },
+      crop: "faces",
+      title: "Light & Shadow",
+      year: "2023",
+    },
+    {
+      id: "photo-1504893524553-b855bce32c67",
+      alt: "A lone figure standing on the rim of a deep moss-covered canyon, the river winding far below",
+      category: "portfolio",
+      orientation: "portrait",
+      ar: { desktop: "tall", mobile: "portrait" },
+      title: "Quiet Places",
+      year: "2022",
+    },
+    {
+      id: "photo-1500530855697-b586d89ba3ee",
+      alt: "An empty desert road running between red rock walls towards a single dark peak under flat cloud",
+      category: "portfolio",
+      orientation: "portrait",
+      ar: { desktop: "editorial", mobile: "portrait" },
+      title: "The Long Way",
+      year: "2023",
+    },
   ],
 
   /** Small supporting frames. Texture, hands, objects, quiet detail. */
@@ -305,6 +345,89 @@ export const images = {
   portfolio: StudioImage[];
   details: StudioImage[];
 };
+
+/* ---------------------------------------------------------------------------
+   THE ARCHIVE
+   ---------------------------------------------------------------------------
+   The editorial view of the same photographs. `ImageCategory` above is
+   structural — it says where a frame sits on a page. These categories say what
+   the frame is *of*, which is the only thing a reader has any reason to filter
+   by.
+
+   Commercial is deliberately absent. The art direction rejects commercial
+   lifestyle stock outright, so there is no honest way to fill it; offering the
+   filter and returning nothing would read as a broken page.
+   --------------------------------------------------------------------------- */
+
+export const workCategories = [
+  { slug: "all", label: "All" },
+  { slug: "weddings", label: "Weddings" },
+  { slug: "couples", label: "Couples" },
+  { slug: "portraits", label: "Portraits" },
+  { slug: "events", label: "Events" },
+  { slug: "lifestyle", label: "Lifestyle" },
+] as const;
+
+export type CategorySlug = (typeof workCategories)[number]["slug"];
+
+export type ArchivePiece = {
+  /**
+   * Titled, not optionally titled. The archive prints a credit under every
+   * frame, so an untitled photograph has no place in it — and this makes that
+   * fail in the manifest rather than as a blank line on the page.
+   */
+  image: StudioImage & { title: string };
+  category: Exclude<CategorySlug, "all">;
+  /** The one piece that carries the cover treatment. */
+  featured?: boolean;
+};
+
+const frames = images.portfolio;
+const detail = images.details;
+
+/**
+ * Order is the composition. The gallery reads straight down this list, so a run
+ * of similar crops here becomes a run of similar rows on the page.
+ */
+export const archive: ArchivePiece[] = [
+  { image: images.hero, category: "weddings", featured: true },
+  { image: frames[2], category: "weddings" },
+  { image: detail[0], category: "weddings" },
+  { image: detail[1], category: "weddings" },
+
+  { image: images.cta, category: "couples" },
+  { image: frames[0], category: "couples" },
+  { image: frames[1], category: "couples" },
+
+  { image: frames[6], category: "portraits" },
+  { image: frames[7], category: "portraits" },
+
+  { image: frames[3], category: "events" },
+  { image: detail[2], category: "events" },
+  { image: detail[3], category: "events" },
+
+  { image: frames[5], category: "lifestyle" },
+  { image: frames[8], category: "lifestyle" },
+  { image: frames[9], category: "lifestyle" },
+];
+
+/**
+ * The frame that stands in for the film work. Held out of the archive above so
+ * the portfolio never shows the same photograph twice on one page.
+ */
+export const filmPoster = frames[4];
+
+export function isCategorySlug(value: string): value is CategorySlug {
+  return workCategories.some((c) => c.slug === value);
+}
+
+export function categoryLabel(slug: CategorySlug): string {
+  return workCategories.find((c) => c.slug === slug)!.label;
+}
+
+export function piecesIn(slug: CategorySlug): ArchivePiece[] {
+  return slug === "all" ? archive : archive.filter((piece) => piece.category === slug);
+}
 
 /* ---------------------------------------------------------------------------
    VIDEO

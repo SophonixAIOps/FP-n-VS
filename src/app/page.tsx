@@ -156,7 +156,7 @@ export default function Page() {
                   delay={0.72}
                   className="flex flex-wrap items-center gap-x-10 gap-y-5"
                 >
-                  <EditorialButton href="/work" tone="light">
+                  <EditorialButton href="/portfolio" tone="light">
                     View Our Work
                   </EditorialButton>
                   <EditorialLink href="/contact" tone="light">
@@ -220,7 +220,7 @@ export default function Page() {
           <GridItem span={7}>
             <PortfolioProject
               image={images.portfolio[0]}
-              href="/work"
+              href="/portfolio"
               size="offset"
               index={1}
             />
@@ -229,7 +229,7 @@ export default function Page() {
           <GridItem span={4} start={9} offsetTop="lg">
             <PortfolioProject
               image={images.portfolio[1]}
-              href="/work"
+              href="/portfolio"
               size="detail"
               index={2}
               delay={0.08}
@@ -239,7 +239,7 @@ export default function Page() {
           <GridItem span={5} offsetTop="sm">
             <PortfolioProject
               image={images.portfolio[2]}
-              href="/work"
+              href="/portfolio"
               size="offset"
               index={3}
             />
@@ -248,7 +248,7 @@ export default function Page() {
           <GridItem span={6} start={7}>
             <PortfolioProject
               image={images.portfolio[5]}
-              href="/work"
+              href="/portfolio"
               size="offset"
               index={4}
               delay={0.08}
@@ -258,7 +258,7 @@ export default function Page() {
           <GridItem span={9} start={4}>
             <PortfolioProject
               image={images.portfolio[4]}
-              href="/work"
+              href="/portfolio"
               size="content"
               index={5}
             />
@@ -266,7 +266,7 @@ export default function Page() {
 
           <GridItem span={12}>
             <Reveal>
-              <EditorialLink href="/work">See all work</EditorialLink>
+              <EditorialLink href="/portfolio">See all work</EditorialLink>
             </Reveal>
           </GridItem>
         </EditorialGrid>
@@ -405,7 +405,7 @@ export default function Page() {
               <EditorialButton href="/contact" tone="light">
                 Book a Session
               </EditorialButton>
-              <EditorialLink href="/work" tone="light">
+              <EditorialLink href="/portfolio" tone="light">
                 View Our Work
               </EditorialLink>
             </Reveal>

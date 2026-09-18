@@ -22,7 +22,7 @@ import { MobileNav } from "./MobileNav";
 export type NavItem = { label: string; href: string };
 
 export const navItems: NavItem[] = [
-  { label: "Work", href: "/work" },
+  { label: "Work", href: "/portfolio" },
   { label: "Services", href: "/services" },
   { label: "Studio", href: "/studio" },
   { label: "Contact", href: "/contact" },
