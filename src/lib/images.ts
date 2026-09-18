@@ -193,7 +193,9 @@ export const images = {
     category: "cta",
     orientation: "portrait",
     ar: { desktop: "cinema", mobile: "editorial" },
-    crop: "entropy",
+    // Entropy reads the pebbles as the busiest region and crops the couple out
+    // entirely, which leaves the alt text describing something not in frame.
+    crop: "faces",
     title: "The Long Veil",
     location: "Pembrokeshire, Wales",
     year: "2024",

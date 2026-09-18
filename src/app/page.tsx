@@ -1,67 +1,112 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteShell } from "@/components/SiteShell";
-import { Wordmark } from "@/components/Wordmark";
-import { EditorialImage } from "@/components/EditorialImage";
-import { Eyebrow, Lead, SectionHeading } from "@/components/Typography";
+import {
+  Container,
+  EditorialGrid,
+  GridItem,
+  Section,
+} from "@/components/Layout";
+import { Eyebrow, Lead, Meta, SectionHeading } from "@/components/Typography";
+import { EditorialButton, EditorialLink } from "@/components/EditorialLink";
+import { EditorialImage, ImageOverlay } from "@/components/EditorialImage";
+import { PortfolioProject } from "@/components/PortfolioProject";
 import { Reveal } from "@/components/Reveal";
 import { images } from "@/lib/images";
 
 /**
- * Phase 0 index.
+ * The homepage.
  *
- * Deliberately not the homepage. It exists to prove the three things that can
- * only be judged in situ — the header sitting over full-screen photography, the
- * display face at hero scale, and the opening image reveal — and to route into
- * the specimens. The real homepage belongs to a later phase.
+ * Read top to bottom it is a single argument: a photograph you cannot look away
+ * from, the reason we make them that way, proof, what we cover, how we work,
+ * and an invitation. The footer's own invitation band is suppressed — this page
+ * already closes on one, and §10 says not to make the offer twice.
  */
 
-const specimens = [
-  {
-    href: "/system/typography",
-    number: "01",
-    title: "Typography",
+export const metadata: Metadata = {
+  title: { absolute: "Frame & Story Studio | Photography & Cinematic Films" },
+  description:
+    "Authentic photography and cinematic films created to preserve the moments you'll never want to forget.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    title: "Frame & Story Studio | Photography & Cinematic Films",
     description:
-      "Instrument Serif and Inter. Scale, hierarchy and editorial setting.",
+      "Authentic photography and cinematic films created to preserve the moments you'll never want to forget.",
   },
+};
+
+const services = [
   {
-    href: "/system/color",
-    number: "02",
-    title: "Colour",
+    name: "Weddings",
     description:
-      "The warm darkroom palette, semantic tokens and measured contrast.",
+      "Full-day coverage, from the quiet of the morning through to the last of the dancing.",
   },
   {
-    href: "/system/imagery",
-    number: "03",
-    title: "Imagery",
+    name: "Wedding Videography",
     description:
-      "Crop vocabulary, the four reveals, and the portfolio hover state.",
+      "A film of the day, cut to how it felt rather than the order it happened in.",
   },
   {
-    href: "/system/motion",
-    number: "04",
-    title: "Motion",
-    description: "Durations, easing curves and what reduced motion changes.",
-  },
-  {
-    href: "/system/components",
-    number: "05",
-    title: "Components",
-    description: "Wordmark, links, buttons and the full interaction state set.",
-  },
-  {
-    href: "/system/layout-system",
-    number: "06",
-    title: "Layout",
+    name: "Events",
     description:
-      "Containers, section rhythm, the editorial grid and its offsets.",
+      "Parties, milestones and the gatherings that only ever happen once.",
+  },
+  {
+    name: "Portraits",
+    description:
+      "Unhurried sessions for one person or two, made somewhere that already means something.",
+  },
+  {
+    name: "Family",
+    description:
+      "Everyone together, at whatever age they happen to be right now.",
+  },
+  {
+    name: "Commercial",
+    description:
+      "Brand and editorial photography for people who make things carefully.",
+  },
+];
+
+const process = [
+  {
+    name: "Meet",
+    description:
+      "We talk first. What you want to remember, who matters, and how present you want us to be.",
+  },
+  {
+    name: "Plan",
+    description:
+      "A simple outline built around your day, so the photography never starts dictating it.",
+  },
+  {
+    name: "Create",
+    description:
+      "We work quietly — close when it counts, out of the way when it doesn't.",
+  },
+  {
+    name: "Deliver",
+    description:
+      "Edited by hand and delivered in full, with the frames worth printing marked.",
   },
 ];
 
 export default function Page() {
   return (
-    <SiteShell surface="dark">
-      {/* Full-screen opening frame — the header over photography. */}
+    <SiteShell
+      surface="dark"
+      cta={false}
+      footerNav={
+        <Link
+          href="/system/typography"
+          className="type-meta transition-opacity duration-(--duration-fast) ease-editorial hover:opacity-60"
+        >
+          Design system
+        </Link>
+      }
+    >
+      {/* 1 — ARRIVE. The header sits over this with no background of its own. */}
       <section className="relative h-svh min-h-136 w-full overflow-hidden bg-bg-dark">
         <EditorialImage
           image={images.hero}
@@ -72,102 +117,301 @@ export default function Page() {
           ar={{ desktop: "cinema", mobile: "portrait" }}
         />
 
-        {/* Scrim. Keeps type legible without flattening the photograph. */}
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-linear-to-b from-ink-900/55 via-ink-900/10 to-ink-900/75"
         />
 
         <div className="absolute inset-0 flex items-end">
-          <div className="mx-auto w-full max-w-wide px-gutter pb-[clamp(3rem,8vw,6rem)]">
-            <Reveal variant="fadeUp" delay={0.35}>
-              <Eyebrow tone="light" rule>
-                Phase 0 · Design System
-              </Eyebrow>
-            </Reveal>
+          <Container width="wide" className="pb-[clamp(3rem,8vw,6rem)]">
+            <EditorialGrid className="items-end gap-y-8">
+              <GridItem span={7}>
+                <Reveal variant="fadeUp" trigger="mount" delay={0.35}>
+                  <Eyebrow tone="light" rule>
+                    Photography &amp; Film
+                  </Eyebrow>
+                </Reveal>
 
-            <Reveal variant="fadeUp" delay={0.45}>
-              <h1 className="type-display-xl mt-7 max-w-[14ch] text-text-inverse">
-                Stories worth <span className="type-emphasis">remembering</span>
-                .
-              </h1>
-            </Reveal>
+                <Reveal variant="fadeUp" trigger="mount" delay={0.45}>
+                  <h1 className="type-display-xl mt-7 max-w-[13ch] text-text-inverse">
+                    Stories Worth{" "}
+                    <span className="type-emphasis">Remembering</span>.
+                  </h1>
+                </Reveal>
+              </GridItem>
 
-            <Reveal variant="fadeUp" delay={0.6}>
-              <p className="type-body-lg mt-8 max-w-[34ch] text-text-inverse opacity-80">
-                The visual constitution for Frame &amp; Story Studio — settled
-                before a single page is built.
-              </p>
-            </Reveal>
-          </div>
-        </div>
-      </section>
+              <GridItem span={4} start={9}>
+                <Reveal variant="fadeUp" trigger="mount" delay={0.6}>
+                  <p className="type-body-lg max-w-[34ch] text-text-inverse opacity-80">
+                    Authentic photography and cinematic films created to
+                    preserve the moments you&rsquo;ll never want to forget.
+                  </p>
+                </Reveal>
+              </GridItem>
 
-      {/* Specimen index */}
-      <section className="mx-auto max-w-wide px-gutter py-section">
-        <div className="grid gap-12 md:grid-cols-[1fr_1.4fr] md:gap-20">
-          <Reveal>
-            <Eyebrow rule>The System</Eyebrow>
-            <SectionHeading level="display-md" as="h2" className="mt-6">
-              Six specimens.
-            </SectionHeading>
-            <Lead className="mt-6">
-              Each isolates one part of the language so it can be judged on its
-              own, before any page depends on it.
-            </Lead>
-          </Reveal>
-
-          <div>
-            {specimens.map((item, index) => (
-              <Reveal key={item.href} delay={index * 0.06}>
-                <Link
-                  href={item.href}
-                  className="group/row flex items-baseline gap-6 border-t border-border py-7 transition-opacity duration-(--duration-standard) ease-editorial hover:opacity-60 md:gap-10"
+              <GridItem span={12}>
+                <Reveal
+                  variant="fadeUp"
+                  trigger="mount"
+                  delay={0.72}
+                  className="flex flex-wrap items-center gap-x-10 gap-y-5"
                 >
-                  <span className="type-meta shrink-0 tabular-nums">
-                    {item.number}
-                  </span>
-                  <span className="flex-1">
-                    <span className="type-h3 block font-display">
-                      {item.title}
-                    </span>
-                    <span className="type-small mt-1.5 block max-w-[48ch] text-text-muted">
-                      {item.description}
-                    </span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="shrink-0 transition-transform duration-(--duration-standard) ease-editorial group-hover/row:translate-x-1"
-                  >
-                    &rarr;
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
+                  <EditorialButton href="/work" tone="light">
+                    View Our Work
+                  </EditorialButton>
+                  <EditorialLink href="/contact" tone="light">
+                    Book a Session
+                  </EditorialLink>
+                </Reveal>
+              </GridItem>
+            </EditorialGrid>
+          </Container>
         </div>
       </section>
 
-      {/* Closing frame — the emotional CTA treatment. */}
-      <section className="relative overflow-hidden bg-bg-dark">
-        <EditorialImage
-          image={images.cta}
-          size="full"
-          reveal="maskUp"
-          ar={{ desktop: "panorama", mobile: "editorial" }}
-        />
-        <div aria-hidden="true" className="absolute inset-0 bg-ink-900/50" />
-        <div className="absolute inset-0 flex items-center justify-center px-gutter">
-          <Reveal className="flex justify-center">
-            <Wordmark
-              size="lg"
-              tone="light"
-              withDescender
-              className="items-center text-center"
+      {/* 2 — FEEL. Why the photographs look the way they do. */}
+      <Section space="md" container="wide">
+        <EditorialGrid>
+          <GridItem span={5}>
+            <Reveal>
+              <Eyebrow rule>The Way We See</Eyebrow>
+              <SectionHeading level="display-md" as="h2" className="mt-6">
+                Photography That Feels Like You.
+              </SectionHeading>
+            </Reveal>
+          </GridItem>
+
+          <GridItem span={6} start={7} offsetTop="sm">
+            <Reveal delay={0.08}>
+              <Lead>
+                A camera can describe a day accurately and still miss it
+                completely. The order of events, the faces, the light — that
+                part is easy.
+              </Lead>
+
+              <p className="type-body mt-7 max-w-[54ch] text-text-muted">
+                What takes attention is everything around it. The pause before
+                someone speaks. A hand finding another hand under the table. The
+                ten seconds nobody thought to look at. We work quietly and stay
+                out of the way, because the moments worth keeping almost never
+                announce themselves first.
+              </p>
+
+              <div className="mt-9">
+                <EditorialLink href="/studio">How we work</EditorialLink>
+              </div>
+            </Reveal>
+          </GridItem>
+        </EditorialGrid>
+      </Section>
+
+      {/* 3 — UNDERSTAND. Proof, composed as a gallery rather than a grid. */}
+      <Section space="md" container="wide">
+        <EditorialGrid className="gap-y-16">
+          <GridItem span={6}>
+            <Reveal>
+              <Eyebrow rule>Selected Work</Eyebrow>
+              <SectionHeading level="display-md" as="h2" className="mt-6">
+                Stories in Frames.
+              </SectionHeading>
+            </Reveal>
+          </GridItem>
+
+          <GridItem span={7}>
+            <PortfolioProject
+              image={images.portfolio[0]}
+              href="/work"
+              size="offset"
+              index={1}
             />
+          </GridItem>
+
+          <GridItem span={4} start={9} offsetTop="lg">
+            <PortfolioProject
+              image={images.portfolio[1]}
+              href="/work"
+              size="detail"
+              index={2}
+              delay={0.08}
+            />
+          </GridItem>
+
+          <GridItem span={5} offsetTop="sm">
+            <PortfolioProject
+              image={images.portfolio[2]}
+              href="/work"
+              size="offset"
+              index={3}
+            />
+          </GridItem>
+
+          <GridItem span={6} start={7}>
+            <PortfolioProject
+              image={images.portfolio[5]}
+              href="/work"
+              size="offset"
+              index={4}
+              delay={0.08}
+            />
+          </GridItem>
+
+          <GridItem span={9} start={4}>
+            <PortfolioProject
+              image={images.portfolio[4]}
+              href="/work"
+              size="content"
+              index={5}
+            />
+          </GridItem>
+
+          <GridItem span={12}>
+            <Reveal>
+              <EditorialLink href="/work">See all work</EditorialLink>
+            </Reveal>
+          </GridItem>
+        </EditorialGrid>
+      </Section>
+
+      {/* 4 — EXPLORE. An index of what we cover. Plain markup, no JS. */}
+      <Section space="md" surface="muted" container="wide">
+        <EditorialGrid>
+          <GridItem span={6}>
+            <Reveal>
+              <Eyebrow rule>What We Capture</Eyebrow>
+              <SectionHeading level="display-md" as="h2" className="mt-6">
+                For Every Chapter Worth Remembering.
+              </SectionHeading>
+            </Reveal>
+          </GridItem>
+
+          <GridItem span={12} className="mt-6 md:mt-16">
+            <ul>
+              {services.map((service, index) => (
+                <li key={service.name} className="border-t border-border">
+                  <Reveal delay={index * 0.04}>
+                    <div className="grid grid-cols-1 gap-y-3 py-8 md:grid-cols-12 md:gap-x-6 md:py-11">
+                      <Meta className="tabular-nums md:col-span-2">
+                        {String(index + 1).padStart(2, "0")}
+                      </Meta>
+                      <h3 className="type-h2 md:col-span-5">{service.name}</h3>
+                      <p className="type-body max-w-[46ch] text-text-muted md:col-span-5">
+                        {service.description}
+                      </p>
+                    </div>
+                  </Reveal>
+                </li>
+              ))}
+            </ul>
+          </GridItem>
+        </EditorialGrid>
+      </Section>
+
+      {/*
+       * 5 — The film beat. A poster frame only: a still we can stand behind
+       * beats a remote clip that may not load. Swapping in a <video poster>
+       * later changes this block and nothing else.
+       */}
+      <Section space="none" surface="dark" container={false}>
+        <ImageOverlay
+          image={images.portfolio[3]}
+          size="full"
+          reveal="clipExpand"
+          ar={{ desktop: "cinema", mobile: "portrait" }}
+          scrim="strong"
+          position="bottom-left"
+        >
+          <Reveal>
+            <Eyebrow tone="inherit" rule>
+              Films
+            </Eyebrow>
+            <h2 className="type-display-md mt-6 max-w-[14ch] font-display">
+              Some Stories Need to <span className="type-emphasis">Move</span>.
+            </h2>
+            <p className="type-body-lg mt-6 max-w-[38ch] opacity-85">
+              Cinematic films that preserve not just what happened, but how it
+              felt.
+            </p>
           </Reveal>
-        </div>
-      </section>
+        </ImageOverlay>
+      </Section>
+
+      {/* 6 — TRUST. Four steps, stated plainly. */}
+      <Section space="md" container="wide">
+        <EditorialGrid>
+          <GridItem span={5}>
+            <Reveal>
+              <Eyebrow rule>The Approach</Eyebrow>
+              <SectionHeading level="display-md" as="h2" className="mt-6">
+                A Thoughtful Process.
+              </SectionHeading>
+            </Reveal>
+          </GridItem>
+
+          <GridItem span={12} className="mt-4 md:mt-16">
+            <ol className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+              {process.map((step, index) => (
+                <li key={step.name}>
+                  <Reveal delay={index * 0.06}>
+                    <div className="border-t border-border pt-6">
+                      <Meta className="tabular-nums">
+                        {String(index + 1).padStart(2, "0")}
+                      </Meta>
+                      <h3 className="type-h3 mt-5">{step.name}</h3>
+                      <p className="type-small mt-3 max-w-[34ch] text-text-muted">
+                        {step.description}
+                      </p>
+                    </div>
+                  </Reveal>
+                </li>
+              ))}
+            </ol>
+          </GridItem>
+        </EditorialGrid>
+      </Section>
+
+      {/* 7 — IMAGINE. A photograph, given room to be nothing but itself. */}
+      <Section space="sm" container={false}>
+        {/*
+         * The manifest's own crop pair, not a wider one: at 21:9 the entropy
+         * crop keeps the veil and the stones but loses the couple, and the alt
+         * text describes them.
+         */}
+        <EditorialImage image={images.cta} size="full" reveal="maskUp" />
+        <Container width="wide" className="mt-5">
+          <Meta>The Long Veil — Pembrokeshire, Wales · 2024</Meta>
+        </Container>
+      </Section>
+
+      {/* 8 — INQUIRE. */}
+      <Section space="lg" surface="dark" container="wide">
+        <EditorialGrid className="gap-y-10">
+          <GridItem span={8}>
+            <Reveal>
+              <Eyebrow tone="light" rule>
+                Commissions
+              </Eyebrow>
+              <h2 className="type-display-md mt-7 max-w-[15ch] font-display">
+                Your Story Is Happening Now. Let&rsquo;s{" "}
+                <span className="type-emphasis">Capture</span> It.
+              </h2>
+            </Reveal>
+          </GridItem>
+
+          <GridItem span={10}>
+            <Reveal
+              delay={0.1}
+              className="flex flex-wrap items-center gap-x-10 gap-y-5"
+            >
+              <EditorialButton href="/contact" tone="light">
+                Book a Session
+              </EditorialButton>
+              <EditorialLink href="/work" tone="light">
+                View Our Work
+              </EditorialLink>
+            </Reveal>
+          </GridItem>
+        </EditorialGrid>
+      </Section>
     </SiteShell>
   );
 }

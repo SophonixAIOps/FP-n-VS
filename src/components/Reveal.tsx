@@ -23,6 +23,13 @@ type RevealProps = {
   variant?: RevealName;
   /** Seconds. Use to offset a block against its neighbour. */
   delay?: number;
+  /**
+   * `mount` plays once on load instead of on scroll. Required for anything in
+   * the opening frame: `viewport.margin` trims 12% off the bottom of the root,
+   * so a block near the foot of a 100svh hero never crosses the threshold and
+   * would sit at opacity 0 until the reader scrolls it away.
+   */
+  trigger?: "inView" | "mount";
   className?: string;
 };
 
@@ -30,6 +37,7 @@ export function Reveal({
   children,
   variant = "fadeUp",
   delay = 0,
+  trigger = "inView",
   className,
 }: RevealProps) {
   const reduced = useReducedMotion();
@@ -37,14 +45,18 @@ export function Reveal({
     ? reducedVariants
     : withDelay(revealVariants[variant], delay);
 
+  const playback =
+    trigger === "mount"
+      ? { animate: "visible" }
+      : { whileInView: "visible", viewport };
+
   return (
     <motion.div
       data-reveal
       className={className}
       variants={variants}
       initial="hidden"
-      whileInView="visible"
-      viewport={viewport}
+      {...playback}
     >
       {children}
     </motion.div>
