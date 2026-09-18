@@ -34,6 +34,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${instrumentSerif.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/*
+         * Motion serialises every `initial` state as an inline style, so without
+         * JS the entry veil never retracts and the page renders blank. These
+         * overrides land the content in its resting state instead.
+         */}
+        <noscript>
+          <style>{`
+            [data-reveal],[data-drift],[data-page-enter]{
+              opacity:1!important;transform:none!important;clip-path:none!important;
+            }
+            [data-page-veil]{display:none!important}
+          `}</style>
+        </noscript>
         <Providers>
           {children}
           <Cursor />

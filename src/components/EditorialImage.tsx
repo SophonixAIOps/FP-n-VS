@@ -160,6 +160,7 @@ export function EditorialImage({
           variants={wrapperVariants}
         >
           <motion.div
+            data-drift
             className="absolute inset-0"
             variants={reduced ? undefined : imageDrift}
           >

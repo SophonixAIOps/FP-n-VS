@@ -44,6 +44,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     <>
       <motion.div
         key={`veil-${pathname}`}
+        data-page-veil
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 bg-bg"
         style={{ zIndex: "var(--z-transition)", transformOrigin: "top" }}
@@ -54,6 +55,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
       <motion.div
         key={pathname}
+        data-page-enter
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
