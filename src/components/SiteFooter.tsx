@@ -2,6 +2,7 @@ import { cn } from "@/lib/cn";
 import { Wordmark } from "./Wordmark";
 import { Eyebrow } from "./Typography";
 import { EditorialButton } from "./EditorialLink";
+import { STUDIO_EMAIL } from "@/lib/studio";
 
 /**
  * The closing frame of every page.
@@ -11,8 +12,6 @@ import { EditorialButton } from "./EditorialLink";
  * colophon. Pages that already end on their own closing composition pass
  * `cta={false}` so the invitation is not made twice.
  */
-
-const EMAIL = "hello@frameandstory.studio";
 
 type SiteFooterProps = {
   /** The invitation band. Drop it when the page already closes on a CTA. */
@@ -43,10 +42,10 @@ export function SiteFooter({ cta = true, children, className }: SiteFooterProps)
               </EditorialButton>
 
               <a
-                href={`mailto:${EMAIL}`}
+                href={`mailto:${STUDIO_EMAIL}`}
                 className="type-nav text-text-inverse opacity-70 transition-opacity duration-(--duration-fast) ease-editorial hover:opacity-100"
               >
-                {EMAIL}
+                {STUDIO_EMAIL}
               </a>
             </div>
           </div>
