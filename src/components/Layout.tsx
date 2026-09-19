@@ -263,7 +263,7 @@ export function EditorialGrid({
   );
 }
 
-type Span = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+export type Span = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 const spanClass: Record<Span, string> = {
   1: "md:col-span-1",
@@ -302,6 +302,8 @@ const offsetClass = {
   md: "md:mt-24",
   lg: "md:mt-40",
 };
+
+export type Offset = keyof typeof offsetClass;
 
 type GridItemProps = {
   children: React.ReactNode;

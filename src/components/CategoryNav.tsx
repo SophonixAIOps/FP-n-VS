@@ -41,7 +41,7 @@ export function CategoryNav({
                 aria-current={current ? "page" : undefined}
                 className={cn(
                   "type-nav group/cat relative inline-block py-2",
-                  "transition-opacity duration-[var(--duration-fast)] ease-editorial",
+                  "transition-opacity duration-(--duration-fast) ease-editorial",
                   current ? "opacity-100" : "opacity-55 hover:opacity-100"
                 )}
               >
@@ -50,7 +50,7 @@ export function CategoryNav({
                   aria-hidden="true"
                   className={cn(
                     "absolute -bottom-0.5 left-0 h-px w-full origin-left bg-current",
-                    "transition-transform duration-[var(--duration-standard)] ease-editorial",
+                    "transition-transform duration-(--duration-standard) ease-editorial",
                     current ? "scale-x-100" : "scale-x-0 group-hover/cat:scale-x-100"
                   )}
                 />

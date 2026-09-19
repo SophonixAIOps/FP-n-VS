@@ -39,6 +39,11 @@ export function EditorialLink({
       href={href}
       className={cn(
         "group/link type-nav inline-flex items-center gap-2",
+        // The label is 13px on a 1.0 line-height, which leaves a hit area well
+        // under the 24px minimum on touch. The padding grows the target and the
+        // matching negative margin gives the space straight back, so nothing on
+        // any page moves.
+        "py-2 -my-2",
         "transition-opacity duration-[var(--duration-fast)] ease-editorial",
         "hover:opacity-70",
         tone === "light" ? "text-text-inverse" : "text-text",
