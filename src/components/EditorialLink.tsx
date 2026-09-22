@@ -91,6 +91,11 @@ type EditorialButtonProps = {
   state?: ButtonState;
   disabled?: boolean;
   type?: "button" | "submit";
+  /**
+   * Runs on activation in both forms. As a link it is a side effect alongside
+   * the navigation, not instead of it — the overlay nav uses it to dismiss
+   * itself on the way out.
+   */
   onClick?: () => void;
   className?: string;
 };
@@ -171,7 +176,21 @@ export function EditorialButton({
 
   if (href && !isDisabled) {
     return (
-      <Link href={href} className={classes} data-cursor="inquire">
+      <Link
+        href={href}
+        onClick={onClick}
+        className={classes}
+        /*
+         * The label has to agree with where the button actually goes. Hard-coding
+         * "inquire" here put a BOOK disc over "View Our Work", which promises the
+         * reader one thing and does another. There are exactly two ways to reach
+         * the form — the route, and the anchor the contact page uses to send you
+         * back up to it.
+         */
+        data-cursor={
+          href.startsWith("/contact") || href === "#inquiry" ? "inquire" : "view"
+        }
+      >
         {content}
       </Link>
     );

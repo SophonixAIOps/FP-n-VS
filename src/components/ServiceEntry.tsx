@@ -4,6 +4,7 @@ import { EditorialLink } from "./EditorialLink";
 import { Meta, SectionHeading } from "./Typography";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/cn";
+import { serviceSlug } from "@/lib/studio";
 import type { AspectName, SizesName, StudioImage } from "@/lib/images";
 
 /**
@@ -179,14 +180,34 @@ export function ServiceEntry({
                 {service.medium.join(" · ")}
               </Meta>
 
-              {service.link && (
+              {/*
+               * Two directions out of every entry: further into the work, or
+               * into an inquiry that already knows which service you were
+               * reading.
+               *
+               * Deliberately not the primary CTA. Six rails each repeating
+               * "Book a Session" would leave the page with nine of them and
+               * nothing to distinguish the two that are actually the page's
+               * call to action. These are the quieter, supporting wording;
+               * the buttons at the end of the page keep the primary one.
+               */}
+              <div className="flex flex-wrap items-baseline gap-x-8 gap-y-3">
+                {service.link && (
+                  <EditorialLink
+                    href={service.link.href}
+                    tone={light ? "light" : "dark"}
+                  >
+                    {service.link.label}
+                  </EditorialLink>
+                )}
+
                 <EditorialLink
-                  href={service.link.href}
+                  href={`/contact?service=${serviceSlug(service.name)}`}
                   tone={light ? "light" : "dark"}
                 >
-                  {service.link.label}
+                  Start a Conversation
                 </EditorialLink>
-              )}
+              </div>
             </div>
           </Reveal>
         </GridItem>

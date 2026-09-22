@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SiteShell } from "@/components/SiteShell";
 import { Section, SplitLayout } from "@/components/Layout";
 import { Eyebrow, Lead, SectionHeading } from "@/components/Typography";
-import { EditorialButton } from "@/components/EditorialLink";
+import { EditorialButton, EditorialLink } from "@/components/EditorialLink";
 import { EditorialImage } from "@/components/EditorialImage";
 import { Reveal } from "@/components/Reveal";
 import { InquiryForm } from "@/components/InquiryForm";
@@ -34,7 +34,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
+/**
+ * Reading `searchParams` opts this route into dynamic rendering, which is the
+ * price of the catalogue being able to preselect a service. It buys a
+ * preselection that is present in the server-rendered HTML — so it survives
+ * JavaScript being off, needs no Suspense boundary, and never flashes a
+ * fallback in place of the form. There is no data behind this page, so the
+ * render itself costs nothing.
+ */
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const requested = (await searchParams).service;
+
   return (
     <SiteShell activeHref="/contact" cta={false}>
       <Section space="lg">
@@ -71,7 +85,9 @@ export default function ContactPage() {
               id="inquiry"
               className="scroll-mt-[calc(var(--header-height)+2rem)] lg:pt-2"
             >
-              <InquiryForm />
+              <InquiryForm
+                service={typeof requested === "string" ? requested : undefined}
+              />
             </div>
           }
         />
@@ -83,12 +99,13 @@ export default function ContactPage() {
           gap="lg"
           primary={
             <div>
-              <Eyebrow rule>How we work</Eyebrow>
+              <Eyebrow rule>What happens next</Eyebrow>
               <p className="type-body-lg mt-7 max-w-[40ch] text-pretty">
-                We take on a small number of stories at a time. Every one begins
-                the same way — a conversation about the people involved and what
-                the day is actually for, long before anyone talks about
-                coverage.
+                You write, we read it properly, and we reply with whatever we
+                still need to understand — the date, the place, who will be
+                there. Everything after that is a conversation rather than a
+                form. We take on a small number of stories at a time, so nothing
+                is settled until it is clearly right for both of us.
               </p>
             </div>
           }
@@ -98,7 +115,7 @@ export default function ContactPage() {
               <p className="type-h3 mt-7 font-display">
                 <a
                   href={`mailto:${STUDIO_EMAIL}`}
-                  className="underline decoration-1 underline-offset-8 transition-opacity duration-[var(--duration-fast)] ease-editorial hover:opacity-70"
+                  className="underline decoration-1 underline-offset-8 transition-opacity duration-(--duration-fast) ease-editorial hover:opacity-70"
                 >
                   {STUDIO_EMAIL}
                 </a>
@@ -120,8 +137,15 @@ export default function ContactPage() {
             <span className="type-emphasis">simple</span> conversation.
           </SectionHeading>
 
-          <div className="mt-10">
-            <EditorialButton href="#inquiry">Start your inquiry</EditorialButton>
+          {/*
+           * The button goes back up to the form; the link is the way out for
+           * anyone who arrived here before they were ready to write.
+           */}
+          <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-5">
+            <EditorialButton href="#inquiry">
+              Start a Conversation
+            </EditorialButton>
+            <EditorialLink href="/portfolio">View Our Work</EditorialLink>
           </div>
         </Reveal>
       </Section>

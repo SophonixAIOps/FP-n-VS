@@ -14,8 +14,8 @@ import { duration, ease } from "@/lib/motion";
  * Custom desktop cursor.
  *
  * A small dot by default. Over anything carrying `data-cursor`, it grows into a
- * labelled disc — VIEW on portfolio frames, PLAY on film, INQUIRE on calls to
- * action.
+ * labelled disc — VIEW on portfolio frames and links into the work, PLAY on
+ * film, BOOK on anything that opens an inquiry.
  *
  * Strictly an enhancement. It only mounts on devices with a fine pointer and
  * hover, and never under reduced motion, so touch users and anyone who has
@@ -24,10 +24,15 @@ import { duration, ease } from "@/lib/motion";
  * still usable.
  */
 
+/*
+ * One word each, and the same words the page uses. "Book" is the short form of
+ * the site's primary call to action — a disc reading "Inquire" over a button
+ * labelled Book a Session is two names for one thing.
+ */
 const LABELS: Record<string, string> = {
   view: "View",
   play: "Play",
-  inquire: "Inquire",
+  inquire: "Book",
 };
 
 export function Cursor() {

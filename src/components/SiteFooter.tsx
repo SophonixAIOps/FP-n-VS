@@ -38,7 +38,7 @@ export function SiteFooter({ cta = true, children, className }: SiteFooterProps)
 
             <div className="mt-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-10">
               <EditorialButton href="/contact" tone="light">
-                Start a conversation
+                Book a Session
               </EditorialButton>
 
               <a

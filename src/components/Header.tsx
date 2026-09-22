@@ -9,7 +9,7 @@ import { MobileNav } from "./MobileNav";
 /**
  * Site header.
  *
- * Restraint is the whole brief. A wordmark, four links, one call to action, and
+ * Restraint is the whole brief. A wordmark, three links, one call to action, and
  * nothing else. It sits over a full-screen hero with no background at all, then
  * settles into an ivory bar once the reader scrolls past the first frame.
  *
@@ -24,7 +24,6 @@ export type NavItem = { label: string; href: string };
 export const navItems: NavItem[] = [
   { label: "Work", href: "/portfolio" },
   { label: "Services", href: "/services" },
-  { label: "Studio", href: "/studio" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -117,14 +116,17 @@ export function Header({ tone = "dark", activeHref }: HeaderProps) {
               href="/contact"
               data-cursor="inquire"
               className={cn(
-                "type-nav group/cta hidden items-center gap-2 border px-5 py-2.5 md:inline-flex",
+                // Outlined rather than filled, and narrower at the breakpoint
+                // where the bar is tightest: the wordmark has to stay the
+                // loudest thing in the header.
+                "type-nav group/cta hidden items-center gap-2 border px-4 py-2.5 md:inline-flex lg:px-5",
                 "transition-colors duration-[var(--duration-standard)] ease-editorial",
                 onLight
                   ? "border-border-strong hover:border-ink-900"
                   : "border-white/35 hover:border-white"
               )}
             >
-              Inquire
+              Book a Session
               <span
                 aria-hidden="true"
                 className="transition-transform duration-[var(--duration-standard)] ease-editorial group-hover/cta:translate-x-1"

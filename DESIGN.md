@@ -534,7 +534,8 @@ Fixed. `--header-height` is 4.5rem, rising to 5.5rem at ≥64rem.
 - The active route holds its rule open permanently.
 - Below `md` the links collapse into the Menu trigger.
 
-Nav: Work · Services · Studio · Contact.
+Nav: Work · Services · Contact. Beside it, outlined and quieter than the
+wordmark, the one primary call to action — **Book a Session**.
 
 ### Mobile menu
 
@@ -547,6 +548,10 @@ collapse to a plain fade under reduced motion.
 **Accessibility:** `role="dialog"` with `aria-modal` and a label · focus moves to
 Close on open and back to the trigger on dismiss · Tab is trapped within the
 panel · Escape dismisses · background scroll is locked.
+
+The three routes sit together at display scale as equals. Below a rule — where
+the header keeps its own call to action on a wider screen — sit Book a Session
+and the studio address.
 
 ### Footer
 
@@ -765,3 +770,80 @@ Constraints that carry forward:
 - Nothing new in the token layer without a reason recorded in `globals.css`.
 - New imagery passes §6 art direction and is reviewed by eye before it enters the manifest.
 - New motion composes from §8. If a component needs a duration that is not on the scale, the scale is wrong, not the component.
+
+---
+
+## 17. Conversion
+
+### Vocabulary
+
+One term per concept. The site has exactly one primary call to action, and the
+supporting wording is deliberately quieter so that it cannot compete with it.
+
+| Rank | Wording | Where |
+| --- | --- | --- |
+| Primary | **Book a Session** | Header, and once at the close of `/`, `/portfolio`, `/services` |
+| Secondary | **View Our Work** | Anywhere routing into the archive |
+| Supporting | **Explore Services** | The homepage service index |
+| Supporting | **Start a Conversation** | Per-service rails, and the return trip to the form on `/contact` |
+| Form | **Send Inquiry** | The inquiry form's submit control |
+
+Not used anywhere, and not to be introduced: Get Started, Learn More, Click
+Here, Submit, Request a Quote, Book Now, Enquire, Schedule, Reserve, Contact Us.
+
+`/contact` carries no primary CTA. The form is the conversion action, and a
+button next to it offering the same thing would only compete with it.
+
+### Routes between pages
+
+Every page can reach the work, the catalogue and the form, and no page is a
+dead end.
+
+| From | Wording | To |
+| --- | --- | --- |
+| `/` | View Our Work | `/portfolio` |
+| `/` | Explore Services | `/services` |
+| `/` | Book a Session | `/contact` |
+| `/portfolio` | Book a Session | `/contact` |
+| `/services` | View Our Work | `/portfolio` |
+| `/services` | Start a Conversation | `/contact?service=…` |
+| `/services` | Book a Session | `/contact` |
+| `/contact` | View Our Work | `/portfolio` |
+
+The header carries all three routes on every page, so anything the body does not
+link to is still one control away.
+
+Service rails carry the service with them: `/contact?service=<slug>` preselects
+the matching option. Both ends go through `serviceSlug()` in `src/lib/studio.ts`,
+so a rename cannot silently stop matching. An unrecognised slug selects nothing
+rather than guessing.
+
+### Analytics event points
+
+**Nothing is instrumented, and no analytics dependency is installed.** This is
+the map for whoever adds one, recorded now while the reasoning is fresh.
+
+| Event | Fires on |
+| --- | --- |
+| `view_portfolio` | `/portfolio` and its category routes |
+| `view_services` | `/services` |
+| `click_book_session` | Any control labelled Book a Session — header, mobile menu, page close |
+| `click_view_work` | Any control labelled View Our Work |
+| `start_inquiry` | First edit to any inquiry field, once per session |
+| `submit_inquiry` | The form passing validation |
+
+`click_book_session` and `click_view_work` are worth a source property (header ·
+menu · page) — the question these answer is *where* the visitor decided, and a
+bare count cannot tell you that.
+
+`submit_inquiry` records that the visitor completed the form. It does not record
+a delivered message: there is no backend, and the form says so.
+
+### What the site must never claim
+
+No testimonials, reviews, ratings, awards, client logos, publication logos,
+follower counts, years in business, projects delivered, or response-time
+promises. No countdowns, no limited availability, no popups of any kind.
+
+The studio is fictional. The work on the page is the only proof it offers, and
+that is the intended posture rather than a gap to be filled later.

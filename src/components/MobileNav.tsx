@@ -5,6 +5,8 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { menuItem, menuOverlay, reducedVariants, staggerContainer } from "@/lib/motion";
 import { Wordmark } from "./Wordmark";
+import { EditorialButton } from "./EditorialLink";
+import { STUDIO_EMAIL } from "@/lib/studio";
 import type { NavItem } from "./Header";
 
 /**
@@ -151,12 +153,34 @@ export function MobileNav({ open, onClose, items, triggerRef }: MobileNavProps) 
               className="shrink-0 border-t border-border-inverse px-gutter py-6"
               variants={reduced ? reducedVariants : menuItem}
             >
-              <a
-                href="mailto:hello@frameandstory.studio"
-                className="type-nav text-text-inverse opacity-70 transition-opacity hover:opacity-100"
+              {/*
+               * The nav above is four routes at equal weight. The booking action
+               * is not one of those, so it sits below the rule where the header's
+               * own call to action would be on a wider screen.
+               */}
+              <EditorialButton
+                href="/contact"
+                tone="light"
+                variant="outline"
+                onClick={onClose}
+                className="w-full sm:w-auto"
               >
-                hello@frameandstory.studio
-              </a>
+                Book a Session
+              </EditorialButton>
+
+              {/*
+               * The padding is the touch target. At 13px on a 1.0 line-height
+               * the address is a 13px tall tap area without it — half the
+               * minimum, on the one layout that is only ever touched.
+               */}
+              <div className="mt-4">
+                <a
+                  href={`mailto:${STUDIO_EMAIL}`}
+                  className="type-nav inline-block py-2 text-text-inverse opacity-70 transition-opacity hover:opacity-100"
+                >
+                  {STUDIO_EMAIL}
+                </a>
+              </div>
             </motion.div>
           </div>
         </motion.div>

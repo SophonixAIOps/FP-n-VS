@@ -8,7 +8,7 @@ import {
   Section,
 } from "@/components/Layout";
 import { Eyebrow, Lead, Meta, SectionHeading } from "@/components/Typography";
-import { EditorialButton } from "@/components/EditorialLink";
+import { EditorialButton, EditorialLink } from "@/components/EditorialLink";
 import { EditorialImage, ImageOverlay } from "@/components/EditorialImage";
 import { CategoryNav } from "@/components/CategoryNav";
 import { ProjectMeta } from "@/components/ProjectMeta";
@@ -248,6 +248,26 @@ export default async function PortfolioPage({
             <ArchiveFrame key={piece.image.id} piece={piece} index={index} />
           ))}
         </EditorialGrid>
+
+        {/*
+         * The one invitation inside the archive, and it comes after the frames
+         * rather than before them — by this point the work has already made the
+         * case, so a hairline rail is enough to ask. The page's only button is
+         * still the one at the end.
+         */}
+        <Reveal className="mt-24 border-t border-border pt-10 md:mt-32">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <Eyebrow rule>Like what you see</Eyebrow>
+              <p className="type-body-lg mt-5 max-w-[32ch] text-text-muted text-pretty">
+                Tell us what you&rsquo;re planning and we&rsquo;ll talk it
+                through.
+              </p>
+            </div>
+
+            <EditorialLink href="/contact">Book a Session</EditorialLink>
+          </div>
+        </Reveal>
       </Section>
 
       {/*

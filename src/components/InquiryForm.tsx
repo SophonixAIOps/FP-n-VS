@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import { EditorialButton } from "@/components/EditorialLink";
-import { STUDIO_EMAIL } from "@/lib/studio";
+import { serviceSlug, STUDIO_EMAIL } from "@/lib/studio";
 
 /**
  * The inquiry form.
@@ -28,6 +28,19 @@ const inquiryServices = [
   "Family",
   "Commercial",
 ];
+
+/**
+ * Turns a `?service=` slug into one of the options the select actually offers.
+ *
+ * Anything unrecognised resolves to no selection rather than to a guess. A
+ * hand-edited URL should leave the visitor choosing for themselves, not put a
+ * service in their inquiry that they never picked.
+ */
+function resolveService(slug: string | undefined): string {
+  if (!slug) return "";
+  const wanted = slug.toLowerCase();
+  return inquiryServices.find((name) => serviceSlug(name) === wanted) ?? "";
+}
 
 type FieldName =
   | "name"
@@ -196,9 +209,24 @@ function Field({
 
 /* -------------------------------------------------------------------------- */
 
-export function InquiryForm({ className }: { className?: string }) {
+export function InquiryForm({
+  className,
+  service,
+}: {
+  className?: string;
+  /**
+   * The service named by the link that sent the visitor here, as a slug. The
+   * page resolves it from the URL and hands it down, so the selected option is
+   * already in the server-rendered HTML — this works with JavaScript off, and
+   * there is nothing for hydration to disagree about.
+   */
+  service?: string;
+}) {
   const uid = useId();
-  const [values, setValues] = useState<Values>(emptyValues);
+  const [values, setValues] = useState<Values>(() => ({
+    ...emptyValues,
+    service: resolveService(service),
+  }));
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -389,7 +417,7 @@ export function InquiryForm({ className }: { className?: string }) {
 
       <div className="mt-12">
         <EditorialButton type="submit" variant="outline">
-          Send your inquiry
+          Send Inquiry
         </EditorialButton>
       </div>
 

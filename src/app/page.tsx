@@ -196,10 +196,6 @@ export default function Page() {
                 out of the way, because the moments worth keeping almost never
                 announce themselves first.
               </p>
-
-              <div className="mt-9">
-                <EditorialLink href="/studio">How we work</EditorialLink>
-              </div>
             </Reveal>
           </GridItem>
         </EditorialGrid>
@@ -266,7 +262,7 @@ export default function Page() {
 
           <GridItem span={12}>
             <Reveal>
-              <EditorialLink href="/portfolio">See all work</EditorialLink>
+              <EditorialLink href="/portfolio">View Our Work</EditorialLink>
             </Reveal>
           </GridItem>
         </EditorialGrid>
@@ -302,6 +298,14 @@ export default function Page() {
                 </li>
               ))}
             </ul>
+
+            {/*
+             * The rule closes the list and carries the link, so the index reads
+             * as a contents page rather than a list with a button under it.
+             */}
+            <Reveal className="mt-10 border-t border-border pt-8">
+              <EditorialLink href="/services">Explore Services</EditorialLink>
+            </Reveal>
           </GridItem>
         </EditorialGrid>
       </Section>
