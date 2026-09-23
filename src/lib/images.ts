@@ -118,6 +118,32 @@ export function unsplash(id: string, options: UnsplashOptions = {}): string {
   return url.toString();
 }
 
+/**
+ * Builds a fixed-size absolute URL for a social preview card.
+ *
+ * Separate from `unsplash()` because the aspect vocabulary has no 1.91:1 entry
+ * and should not grow one: 1200×630 is a social-platform convention, not a
+ * composition choice the design system makes. Width and height are requested
+ * explicitly so the dimensions declared in the metadata are the dimensions
+ * actually served.
+ *
+ * `crop: "faces"` rather than the manifest's usual entropy. Both were rendered
+ * at 1200×630 and looked at; entropy pulls the frame up into the sun flare,
+ * faces keeps the couple where the alt text says they are. The margin is small,
+ * so if this image is ever swapped, look at the new crop rather than assuming
+ * the setting carries over.
+ */
+export function socialImage(id: string, width = 1200, height = 630): string {
+  const url = new URL(`https://images.unsplash.com/${id}`);
+  url.searchParams.set("auto", "format");
+  url.searchParams.set("fit", "crop");
+  url.searchParams.set("crop", "faces");
+  url.searchParams.set("w", String(width));
+  url.searchParams.set("h", String(height));
+  url.searchParams.set("q", "80");
+  return url.toString();
+}
+
 /* ---------------------------------------------------------------------------
    RESPONSIVE SIZES
    Always pass one of these to <Image sizes>. Getting `sizes` wrong is the

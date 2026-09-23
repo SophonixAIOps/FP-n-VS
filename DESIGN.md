@@ -847,3 +847,121 @@ promises. No countdowns, no limited availability, no popups of any kind.
 
 The studio is fictional. The work on the page is the only proof it offers, and
 that is the intended posture rather than a gap to be filled later.
+
+## 18. Search
+
+### One topic per page
+
+Search intent is carried by titles, headings, alt text and links — not by copy
+written for crawlers. No page on this site exists to rank for a phrase, and
+nothing below asks for a paragraph to be added.
+
+| Route | Primary topic | Title |
+| --- | --- | --- |
+| `/` | Photography studio · professional photography | Frame & Story Studio \| Photography & Cinematic Films |
+| `/portfolio` | Photography portfolio | Photography Portfolio |
+| `/portfolio/weddings` | Wedding photography | Wedding Photography Portfolio |
+| `/portfolio/couples` | Couples & engagement photography | Couples Photography Portfolio |
+| `/portfolio/portraits` | Portrait photography | Portrait Photography Portfolio |
+| `/portfolio/events` | Event photography | Event Photography Portfolio |
+| `/portfolio/lifestyle` | Lifestyle & commercial photography | Lifestyle Photography Portfolio |
+| `/services` | Photography & videography services | Photography & Videography Services |
+| `/contact` | Photography inquiry | Contact & Photography Inquiries |
+
+The homepage H1 stays **Stories Worth Remembering.** It is the brand line, and
+the page says what the studio does in the eyebrow, the H2s and the metadata
+instead. `/services` already uses the six service names as H2s, which is where
+the service vocabulary genuinely belongs.
+
+### Where metadata comes from
+
+`src/lib/seo.ts` — `pageMetadata()` composes the title, description, canonical,
+Open Graph and Twitter card for a route from four values. Use it for any new
+public page.
+
+The reason it exists is worth keeping: **a route that sets `openGraph` at all
+replaces the parent's `openGraph` wholesale rather than merging into it.** Every
+page that hand-wrote an Open Graph block was silently dropping the card image.
+Declaring the shared fields in the root layout does not fix this; composing them
+per route does.
+
+The root layout holds only what is true everywhere — `metadataBase`, the title
+template, the fallback description, the default robots directives. Canonicals
+and Open Graph are deliberately not there: an inherited canonical would point
+every specimen page at the homepage.
+
+### Domain
+
+`SITE_URL` in `src/lib/studio.ts` is the only place the origin is written.
+Canonicals, the sitemap, robots and every absolute Open Graph URL derive from
+it.
+
+It falls back to `https://www.framestorystudio.example`. `.example` is reserved
+by RFC 2606 and can never be registered, so the placeholder cannot be mistaken
+for a real studio — which matters more than convenience, because a canonical
+pointing at the wrong host is worse than an obviously absent one.
+
+**To deploy:** set `NEXT_PUBLIC_SITE_URL` to the production origin, no trailing
+slash, in the hosting provider's environment settings. It is read at build time
+and must be public — canonical tags and the sitemap are part of the rendered
+output, so there is nothing secret in it. See `.env.example`.
+
+### Crawling
+
+- `src/app/sitemap.ts` → `/sitemap.xml`. Nine URLs: the four sections and the
+  five category views, derived from `workCategories` so a new category cannot
+  be forgotten. `lastModified` and `changeFrequency` are omitted on purpose — a
+  build timestamp would claim every page changed on every deploy, and a
+  frequency would be a guess.
+- `src/app/robots.ts` → `/robots.txt`. Everything allowed except `/system/`.
+- `src/app/system/layout.tsx` carries `noindex, nofollow`. Both halves are
+  needed: robots.txt stops a crawler spending time there, the meta tag is what
+  keeps a specimen out of an index if something links to one anyway.
+
+### Structured data
+
+`WebSite` and `Organization`, in the root layout, restating only what the site
+already says out loud. Absent on purpose, and to stay absent until each is a
+fact someone can verify: `logo`, `address`, `geo`, `areaServed`,
+`openingHours`, `telephone`, `sameAs`, `aggregateRating`, `review`, `award`.
+
+The locations printed under portfolio pieces — Umbria, Cascais, Isle of Skye —
+are **where a photograph was taken**. They are not business geography and must
+never be read into structured data as a service area or an address.
+
+### Local SEO — not done, and why
+
+The studio is fictional. It has no city, no premises, no phone number and no
+opening hours, so there is nothing truthful to mark up. A `LocalBusiness` node
+here would be an invention, which is the one thing structured data must not be.
+
+If this ever becomes a real studio, these are the fields to establish first —
+and each needs a real answer before it goes anywhere near the page:
+
+| Field | Needed for |
+| --- | --- |
+| City and region | Title and description of a location-relevant page |
+| Street address, or none | `LocalBusiness` · Google Business Profile |
+| Service area | `areaServed` — the places actually travelled to |
+| Telephone | `LocalBusiness` · the contact page |
+| Business hours | `openingHoursSpecification` |
+| Google Business Profile | Map results, reviews |
+
+Reviews and ratings follow the same rule: only once real ones exist, and only
+from the people who gave them.
+
+### Search Console readiness
+
+Nothing is connected, and no verification code is present — a fabricated one
+would be worse than none. When a production domain exists:
+
+| What | Where |
+| --- | --- |
+| Property | The value of `NEXT_PUBLIC_SITE_URL` |
+| Sitemap to submit | `<origin>/sitemap.xml` |
+| Robots to check | `<origin>/robots.txt` |
+| Canonical source | `pageMetadata()` in `src/lib/seo.ts` |
+| Verification meta tag | `metadata.verification.google` in `src/app/layout.tsx` |
+
+DNS `TXT` verification is preferable where the registrar is reachable; it
+survives redeploys and keeps the code free of a provider-specific token.

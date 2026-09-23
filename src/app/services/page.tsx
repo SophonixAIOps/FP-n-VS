@@ -11,6 +11,7 @@ import {
 } from "@/components/ServiceEntry";
 import { ServiceIndex } from "@/components/ServiceIndex";
 import { images } from "@/lib/images";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * Services.
@@ -25,18 +26,14 @@ import { images } from "@/lib/images";
  * other page; nothing here needs state, and the index is six anchors.
  */
 
-export const metadata: Metadata = {
-  title: "Services",
+export const metadata: Metadata = pageMetadata({
+  title: "Photography & Videography Services",
   description:
     "Wedding photography and wedding videography, event coverage, portrait and family sessions, and commercial photography — stills and film made to preserve how something felt, not only how it looked.",
-  alternates: { canonical: "/services" },
-  openGraph: {
-    type: "website",
-    title: "Services",
-    description:
-      "Wedding photography and wedding videography, event coverage, portrait and family sessions, and commercial photography.",
-  },
-};
+  socialDescription:
+    "Wedding photography and videography, event coverage, portrait and family sessions, and commercial work.",
+  path: "/services",
+});
 
 /* -------------------------------------------------------------------------- */
 

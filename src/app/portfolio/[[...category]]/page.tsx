@@ -22,6 +22,7 @@ import {
   type ArchivePiece,
   type CategorySlug,
 } from "@/lib/images";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * The archive.
@@ -53,23 +54,56 @@ function resolveCategory(segments: string[] | undefined): CategorySlug {
   return segments[0];
 }
 
+/**
+ * One topic per view, written out rather than assembled from the category
+ * label — `Weddings` reads as a filter chip, `Wedding Photography` reads as
+ * the thing someone was actually looking for. Six short lines are cheaper to
+ * keep honest than a template that produces five awkward sentences.
+ */
+const archiveMeta: Record<CategorySlug, { title: string; description: string }> = {
+  all: {
+    title: "Photography Portfolio",
+    description:
+      "An editorial archive of photography and film work — weddings, couples, portraits, events and lifestyle.",
+  },
+  weddings: {
+    title: "Wedding Photography Portfolio",
+    description:
+      "Wedding photography from across the archive — ceremonies, receptions and the quiet hours either side of them.",
+  },
+  couples: {
+    title: "Couples Photography Portfolio",
+    description:
+      "Engagement and couples photography — unhurried sessions shot the way two people are with each other.",
+  },
+  portraits: {
+    title: "Portrait Photography Portfolio",
+    description:
+      "Portrait photography for individuals, families and working professionals, shot in natural light.",
+  },
+  events: {
+    title: "Event Photography Portfolio",
+    description:
+      "Event photography — gatherings, celebrations and brand occasions covered as they happen.",
+  },
+  lifestyle: {
+    title: "Lifestyle Photography Portfolio",
+    description:
+      "Lifestyle and commercial photography made for brands that would rather look like themselves.",
+  },
+};
+
 export async function generateMetadata({
   params,
 }: PageProps<"/portfolio/[[...category]]">): Promise<Metadata> {
   const slug = resolveCategory((await params).category);
-  const all = slug === "all";
+  const { title, description } = archiveMeta[slug];
 
-  const title = all ? "Portfolio" : `Portfolio · ${categoryLabel(slug)}`;
-  const description = all
-    ? "An editorial archive of photography and film work — weddings, couples, portraits, events and lifestyle."
-    : `${categoryLabel(slug)} from the Frame & Story Studio archive.`;
-
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: all ? "/portfolio" : `/portfolio/${slug}` },
-    openGraph: { type: "website", title, description },
-  };
+    path: slug === "all" ? "/portfolio" : `/portfolio/${slug}`,
+  });
 }
 
 /* -------------------------------------------------------------------------- */

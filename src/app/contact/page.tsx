@@ -7,6 +7,7 @@ import { EditorialImage } from "@/components/EditorialImage";
 import { Reveal } from "@/components/Reveal";
 import { InquiryForm } from "@/components/InquiryForm";
 import { images } from "@/lib/images";
+import { pageMetadata } from "@/lib/seo";
 import { STUDIO_EMAIL } from "@/lib/studio";
 
 /**
@@ -21,18 +22,14 @@ import { STUDIO_EMAIL } from "@/lib/studio";
  * cannot usefully invite you to itself.
  */
 
-export const metadata: Metadata = {
-  title: "Contact",
+export const metadata: Metadata = pageMetadata({
+  title: "Contact & Photography Inquiries",
   description:
     "Tell us about your story — weddings, events, portraits and brand work. Write to Frame & Story Studio and we will take it from there.",
-  alternates: { canonical: "/contact" },
-  openGraph: {
-    type: "website",
-    title: "Contact",
-    description:
-      "Tell us about your story — weddings, events, portraits and brand work.",
-  },
-};
+  socialDescription:
+    "Tell us about your story — weddings, events, portraits and brand work.",
+  path: "/contact",
+});
 
 /**
  * Reading `searchParams` opts this route into dynamic rendering, which is the
@@ -99,7 +96,7 @@ export default async function ContactPage({
           gap="lg"
           primary={
             <div>
-              <Eyebrow rule>What happens next</Eyebrow>
+              <Eyebrow rule as="h2">What happens next</Eyebrow>
               <p className="type-body-lg mt-7 max-w-[40ch] text-pretty">
                 You write, we read it properly, and we reply with whatever we
                 still need to understand — the date, the place, who will be
@@ -111,7 +108,7 @@ export default async function ContactPage({
           }
           secondary={
             <div>
-              <Eyebrow rule>Write to us directly</Eyebrow>
+              <Eyebrow rule as="h2">Write to us directly</Eyebrow>
               <p className="type-h3 mt-7 font-display">
                 <a
                   href={`mailto:${STUDIO_EMAIL}`}

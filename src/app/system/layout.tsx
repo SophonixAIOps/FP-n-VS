@@ -1,5 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteShell } from "@/components/SiteShell";
+
+/**
+ * The specimens are a working reference, not a page the studio is offering to
+ * anyone. Declared on the layout so it covers all six and cannot be forgotten
+ * when a seventh is added. `nofollow` goes with it because the only links here
+ * lead to more specimens.
+ *
+ * This is the half that matters: robots.txt asks crawlers not to visit, but a
+ * page that is linked from elsewhere can still be indexed without ever being
+ * crawled. The tag is what makes that impossible.
+ */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const sections = [
   { href: "/system/typography", label: "Typography" },

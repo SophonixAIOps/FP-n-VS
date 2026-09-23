@@ -22,6 +22,17 @@ type EyebrowProps = {
    * `inherit` takes the colour of its container — use that over photography.
    */
   tone?: "dark" | "light" | "inherit";
+  /**
+   * The tag to render. An eyebrow that is the only thing naming its section
+   * should be a heading, so the document outline says what a reader can
+   * already see. Labels that sit above a heading which names the section
+   * anyway stay a `span` — that is the common case, so this is opt-in.
+   *
+   * Appearance is identical either way: `type-eyebrow` sets its own size and
+   * weight, and Preflight has already flattened the browser's heading
+   * defaults to inherited ones.
+   */
+  as?: "span" | "h2" | "h3";
   className?: string;
 };
 
@@ -36,10 +47,11 @@ export function Eyebrow({
   children,
   rule = false,
   tone = "dark",
+  as: Tag = "span",
   className,
 }: EyebrowProps) {
   return (
-    <span
+    <Tag
       className={cn(
         "type-eyebrow inline-flex items-center gap-3",
         eyebrowTone[tone],
@@ -53,7 +65,7 @@ export function Eyebrow({
         />
       )}
       {children}
-    </span>
+    </Tag>
   );
 }
 

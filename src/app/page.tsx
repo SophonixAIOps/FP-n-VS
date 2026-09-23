@@ -13,6 +13,8 @@ import { EditorialImage, ImageOverlay } from "@/components/EditorialImage";
 import { PortfolioProject } from "@/components/PortfolioProject";
 import { Reveal } from "@/components/Reveal";
 import { images } from "@/lib/images";
+import { pageMetadata } from "@/lib/seo";
+import { STUDIO_NAME } from "@/lib/studio";
 
 /**
  * The homepage.
@@ -23,18 +25,20 @@ import { images } from "@/lib/images";
  * already closes on one, and §10 says not to make the offer twice.
  */
 
-export const metadata: Metadata = {
-  title: { absolute: "Frame & Story Studio | Photography & Cinematic Films" },
+/**
+ * The one page where the brand leads the title rather than trailing it — a
+ * search result for the studio's own name should read as the studio, and the
+ * words after the bar say what it does for someone who has never heard it.
+ */
+export const metadata: Metadata = pageMetadata({
+  title: `${STUDIO_NAME} | Photography & Cinematic Films`,
+  absoluteTitle: true,
   description:
-    "Authentic photography and cinematic films created to preserve the moments you'll never want to forget.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    title: "Frame & Story Studio | Photography & Cinematic Films",
-    description:
-      "Authentic photography and cinematic films created to preserve the moments you'll never want to forget.",
-  },
-};
+    "Frame & Story Studio creates authentic photography and cinematic films for weddings, events, portraits, families and brands.",
+  socialDescription:
+    "Authentic photography and cinematic films, made to preserve how something felt.",
+  path: "/",
+});
 
 const services = [
   {
