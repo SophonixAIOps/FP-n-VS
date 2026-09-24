@@ -918,37 +918,108 @@ output, so there is nothing secret in it. See `.env.example`.
   needed: robots.txt stops a crawler spending time there, the meta tag is what
   keeps a specimen out of an index if something links to one anyway.
 
+### The business profile
+
+`studio` in `src/lib/studio.ts` is the entity. The footer, the inquiry page and
+every structured-data node read from it and from nothing else.
+
+One rule governs it: **a field is either verified or absent.** Absent is `null`
+for single values and `[]` for lists — never `"YOUR_CITY"`, because a
+placeholder string is one careless render away from appearing on a page or in a
+schema a crawler will believe. `null` cannot be printed by accident, and the
+types make you handle it.
+
+| Field | Today | What it needs |
+| --- | --- | --- |
+| `name` `description` `url` `email` | Verified | — |
+| `telephone` | `null` | A real number, E.164 |
+| `location` | `null` | City and ISO country at minimum; `geo` only from a pin on the premises |
+| `serviceArea` | `[]` | The places actually travelled to |
+| `openingHours` | `[]` | Real published hours. Empty is correct for appointment-only |
+| `socialProfiles` | `[]` | Absolute URLs to profiles the studio controls |
+
+Nothing is filled in to make a schema look fuller. An `Organization` with four
+true facts outranks a `LocalBusiness` with twelve invented ones, and fabricated
+local data is the one SEO mistake that gets a business penalised rather than
+merely ignored.
+
 ### Structured data
 
-`WebSite` and `Organization`, in the root layout, restating only what the site
-already says out loud. Absent on purpose, and to stay absent until each is a
-fact someone can verify: `logo`, `address`, `geo`, `areaServed`,
-`openingHours`, `telephone`, `sameAs`, `aggregateRating`, `review`, `award`.
+Built in `src/lib/schema.ts`, emitted by `<JsonLd>` — a plain `<script>` tag, no
+client JavaScript, no library.
+
+| Node | Where | Notes |
+| --- | --- | --- |
+| `Organization` | Every route | Becomes `PhotographStudio` once a location exists |
+| `WebSite` | Every route | `publisher` → the studio by `@id` |
+| `Service` ×6 | `/services` | Same names and sentences the page prints; `url` → the `#slug` anchor the index already links to |
+
+`/services` therefore carries two blocks. That is intentional and not a
+duplicate: the Service nodes reference the studio by `@id` rather than
+describing it again.
+
+**The type is chosen by the data.** `businessNode()` emits `Organization` while
+`studio.location` is `null` and `PhotographStudio` — schema.org's
+photography-specific subtype of `LocalBusiness` — once it is not. Filling in the
+config is the whole upgrade; no code changes. `address`, `geo`, `areaServed`,
+`openingHoursSpecification`, `telephone` and `sameAs` each appear the moment
+their field is populated and are omitted entirely while it is empty, because an
+absent property reads as "not stated" and an empty one reads as a claim.
+
+Never to be added without real data behind them: `aggregateRating`, `review`,
+`award`. Rating markup invented for a demo is the one thing here that could
+mislead a person rather than just a crawler.
+
+`logo` is absent and should stay absent: the identity is the typographic
+wordmark, which is markup rather than a file. `image` carries the social card —
+a real photograph at a URL that resolves. `potentialAction` is omitted too; the
+site has no search.
 
 The locations printed under portfolio pieces — Umbria, Cascais, Isle of Skye —
-are **where a photograph was taken**. They are not business geography and must
-never be read into structured data as a service area or an address.
+are **where a photograph was taken**, and illustrative at that, like the stock
+imagery they caption. They are not business geography and must never be read
+into structured data as a service area or an address. Once a studio replaces the
+manifest with its own work, real capture locations become legitimate
+`contentLocation` on a per-photograph `ImageObject` — but only then, and only
+per photograph.
 
-### Local SEO — not done, and why
+### Where location appears once it is verified
 
-The studio is fictional. It has no city, no premises, no phone number and no
-opening hours, so there is nothing truthful to mark up. A `LocalBusiness` node
-here would be an invention, which is the one thing structured data must not be.
+Nothing below needs building; each is already conditional on the config.
 
-If this ever becomes a real studio, these are the fields to establish first —
-and each needs a real answer before it goes anywhere near the page:
-
-| Field | Needed for |
+| Surface | Behaviour |
 | --- | --- |
-| City and region | Title and description of a location-relevant page |
-| Street address, or none | `LocalBusiness` · Google Business Profile |
-| Service area | `areaServed` — the places actually travelled to |
-| Telephone | `LocalBusiness` · the contact page |
-| Business hours | `openingHoursSpecification` |
-| Google Business Profile | Map results, reviews |
+| Footer meta rail | `StudioDetails` renders city, phone, service area and social links. Renders nothing today |
+| Contact page | The details block replaces the "no telephone and no address" disclosure |
+| Structured data | Type upgrade plus the address, geo, area and hours properties |
+| Titles and descriptions | Hand-written in `pageMetadata()` calls. `[City] wedding photographer` becomes honest here — and only here |
 
-Reviews and ratings follow the same rule: only once real ones exist, and only
-from the people who gave them.
+What must **not** happen when that day comes: `[CITY]` tokens in body copy,
+repeated city names in a footer, or a page per town. Local relevance comes from
+a verified address, a Google Business Profile, real venues in real project
+pages, and real reviews — not from the word appearing more often.
+
+### Local SEO — what is deliberately not built
+
+- **No location pages.** `/photographer-<city>` routes are doorway pages unless
+  each carries genuinely distinct work and writing. If a real studio serves
+  several areas, one page per area is justified only when there is a real body
+  of work from that area to put on it.
+- **No Google Business Profile.** It cannot be created from a codebase. It needs
+  a real name, primary category, address or service-area configuration, phone,
+  website, hours, photographs, service descriptions, and postcard or phone
+  verification. Reviews follow from it — they are never marked up by hand.
+- **No reviews, ratings or hours.** See above.
+- **No map embed or review widget.** Both are third-party scripts on a site that
+  currently ships none.
+- **No project detail pages.** `/portfolio/<project>` is the natural long-tail
+  route — a real wedding at a real venue, with its own images, film and words.
+  It is worth building when there is a real project to put in it, and worthless
+  as a placeholder. `ArchivePiece` in `src/lib/images.ts` is the type that would
+  grow the fields.
+- **No local content.** Venue guides, engagement-location write-ups and client
+  stories are the legitimate local content strategy, and every one of them
+  requires a real shoot first.
 
 ### Search Console readiness
 

@@ -194,6 +194,21 @@ export type StudioImage = {
   crop?: UnsplashOptions["crop"];
   /** Editorial metadata shown on portfolio hover. */
   title?: string;
+  /**
+   * Where the photograph was taken — a caption, not business geography.
+   *
+   * Two things follow from that, and both matter. It says nothing about where
+   * the studio is based or will travel: that lives in `studio.location` and
+   * `studio.serviceArea`, and reading these captions as a service area would
+   * be an invention. And the values here are illustrative, like the imagery
+   * they caption — the photographs are licensed stock standing in for
+   * commissioned work, so these places are where the archive says a frame was
+   * made rather than where it was.
+   *
+   * Never feed this into structured data. Once a studio replaces the manifest
+   * with its own work, real capture locations become legitimate `contentLocation`
+   * on a per-photograph `ImageObject` — but only then, and only per photograph.
+   */
   location?: string;
   year?: string;
 };

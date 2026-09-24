@@ -8,7 +8,7 @@ import { Reveal } from "@/components/Reveal";
 import { InquiryForm } from "@/components/InquiryForm";
 import { images } from "@/lib/images";
 import { pageMetadata } from "@/lib/seo";
-import { STUDIO_EMAIL } from "@/lib/studio";
+import { STUDIO_EMAIL, studio } from "@/lib/studio";
 
 /**
  * The inquiry page.
@@ -117,11 +117,44 @@ export default async function ContactPage({
                   {STUDIO_EMAIL}
                 </a>
               </p>
-              <p className="type-helper mt-6 max-w-[40ch]">
-                Frame &amp; Story Studio is a fictional studio built for this
-                demonstration, so there is no telephone and no address to list.
-                The email above opens in your own mail app.
-              </p>
+              {/*
+               * Two branches, and the one that renders today is the honest
+               * one. A real studio fills in `location`, `telephone` and
+               * `serviceArea` in the business profile and this becomes the
+               * details block; until then it says plainly why there are none,
+               * which is better than an empty rail a reader has to interpret.
+               */}
+              {studio.location || studio.telephone ? (
+                <address className="type-helper mt-6 flex max-w-[40ch] flex-col gap-2 not-italic">
+                  {studio.telephone && (
+                    <a href={`tel:${studio.telephone}`}>{studio.telephone}</a>
+                  )}
+                  {studio.location && (
+                    <span>
+                      {[
+                        studio.location.streetAddress,
+                        studio.location.addressLocality,
+                        studio.location.addressRegion,
+                        studio.location.postalCode,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  )}
+                  {studio.serviceArea.length > 0 && (
+                    <span>
+                      Also working in{" "}
+                      {studio.serviceArea.map((area) => area.name).join(", ")}
+                    </span>
+                  )}
+                </address>
+              ) : (
+                <p className="type-helper mt-6 max-w-[40ch]">
+                  Frame &amp; Story Studio is a fictional studio built for this
+                  demonstration, so there is no telephone and no address to
+                  list. The email above opens in your own mail app.
+                </p>
+              )}
             </div>
           }
         />

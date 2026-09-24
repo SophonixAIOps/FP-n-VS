@@ -10,7 +10,9 @@ import {
   type ServiceLayout,
 } from "@/components/ServiceEntry";
 import { ServiceIndex } from "@/components/ServiceIndex";
+import { JsonLd } from "@/components/JsonLd";
 import { images } from "@/lib/images";
+import { serviceGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 
 /**
@@ -155,6 +157,14 @@ const stepPlacement = [
 export default function ServicesPage() {
   return (
     <SiteShell activeHref="/services" cta={false}>
+      {/*
+       * The catalogue, said again in a form a crawler can read. Built from the
+       * same `services` array the page renders, so the two cannot describe
+       * different things — and each node points at the studio by `@id` rather
+       * than restating it.
+       */}
+      <JsonLd graph={serviceGraph(services)} />
+
       {/*
        * 1 — The opening. Title across the left, the note and the disclosure
        * across the gutter: an editorial spread, not a centred hero.
