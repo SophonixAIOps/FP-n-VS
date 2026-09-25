@@ -272,6 +272,28 @@ saturated pink aisle, commercial shopping-bag stock.
 
 Verify new IDs with `node scripts/verify-images.mjs <id>…`, then look at them.
 
+### The imagery is illustrative, and the site never says otherwise
+
+Every photograph is licensed stock standing in for commissioned work. Nothing on
+the site presents it as a Frame & Story Studio client, and nothing may start to:
+no couple is named, no venue is named, no brand is credited, no shoot is dated
+to a commission. The `location` field is **where a photograph was taken** — a
+caption, illustrative like the frame it captions — and is explicitly not business
+geography. See §18 for why it must never reach structured data.
+
+`alt` describes what is in the frame and nothing else. "Newlywed couple walking
+through an outdoor garden after their ceremony" is alt text; "Best wedding
+photographer in the city" is keyword stuffing wearing an `alt` attribute. No two
+images share a generic string, and every image-only link carries its own
+accessible name.
+
+### Naming
+
+Images are Unsplash IDs, not files. There is no `public/` image tree to
+organise, and the manifest in `src/lib/images.ts` is the index — a photograph is
+found by its `title` and `alt`, not by a filename. Keyword-stuffed filenames are
+therefore not merely discouraged here, they have nowhere to live.
+
 ### Crop vocabulary
 
 A fixed set of seven. Arbitrary ratios are how a gallery starts to look
@@ -304,27 +326,70 @@ with CSS `object-position`.
 
 Breakpoint for the source swap: `(min-width: 48rem)`.
 
+The consequence is that **`next.config.ts` has no `images` block, and should
+not grow one.** It used to carry `remotePatterns` and a `deviceSizes` ladder;
+with no `next/image` in the tree, none of it was ever read. A config that
+appears to govern images but does not is worse than no config — the next person
+to tune image delivery edits it and measures no change. There is exactly one
+image path in this codebase and it is `EditorialImage`.
+
+### Focal points — available, and currently unused
+
+`StudioImage` takes `crop: "focalpoint"` plus `fp: { x, y }`, and `srcSet` and
+`fallbackSrc` both carry them, so a focal point travels with the image instead of
+being re-specified at each call site.
+
+**No frame in the manifest needs one.** Every image was rendered at both its
+desktop and its mobile aspect and looked at; `entropy` or `faces` held the
+subject in all of them. A focal point here would be a guess overriding a
+measurement, so the field exists for the frame that eventually defeats both.
+
+Two frames do override the default `crop`, and the reason is recorded beside each
+in the manifest: entropy reads the busiest region rather than the subject, so on
+*The Long Veil* it crops to pebbles and on *Between Moments* it crops the
+subject out of an upright frame. Both use `faces`. **When a crop looks wrong,
+try the other `crop` mode before reaching for a focal point** — a mode is a
+policy that survives a re-crop, a focal point is a coordinate that does not.
+
 ### Performance rules
 
 - AVIF and WebP negotiated automatically by the CDN (`auto=format`).
 - Aspect ratio reserved on the wrapper before any bytes arrive — **zero layout shift**.
 - Wrapper background is `--color-surface`, so a slow connection shows the palette rather than a white hole.
-- Hero loads eagerly at high priority. Everything else is lazy.
-- A `sizes` value on **every** image, chosen from the presets. Getting `sizes` wrong is the single most expensive mistake on an image-led site.
-- Desktop srcset to 2560px; **mobile srcset capped at 1280px** so phones never fetch a 2560px file.
-- Quality fixed at **74** — the point of diminishing returns.
+- Hero loads eagerly at high priority. Everything else is lazy. **At most one image per page is `priority`** — `/` and `/portfolio` open on a hero and spend it there; `/services` and `/contact` open on type, so neither has one and neither should.
+- A `sizes` value on **every** image, derived from the slot it occupies. Getting `sizes` wrong is the single most expensive mistake on an image-led site.
+- One srcset ladder, steps ~1.2× apart, 260 → 2560. The desktop `<source>` gets all of it; the **mobile `<source>` is sliced at 1440**, because below 48rem the viewport is the ceiling and the top of the ladder is dead weight.
+- Quality fixed at **74** — the point of diminishing returns, and one number rather than a per-call-site knob, because quality is a house style and a site where each frame picks its own drifts within a single scroll.
 - Meaningful `alt` on every image. Never "photo" or "image".
 
-### `sizes` presets
+### `sizes` is derived, never estimated
 
-| Preset | Value |
+There is no preset list. A preset is a guess that survives a layout change, and
+every one of the six that used to sit here had drifted from the slot it
+described. `sizes` is now computed from the same numbers the layout is given.
+
+| Helper | Slot |
 | --- | --- |
-| `full` | `100vw` |
-| `half` | `(min-width: 64rem) 50vw, 100vw` |
-| `third` | `(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw` |
-| `content` | `(min-width: 75rem) 1200px, 92vw` |
-| `offset` | `(min-width: 64rem) 46vw, 92vw` |
-| `detail` | `(min-width: 64rem) 28vw, 55vw` |
+| `slotSizes(desktop, mobile = 12)` | *n* of the twelve grid columns inside `max-w-wide`. Pass the same numbers as the enclosing `GridItem` |
+| `SIZES_FULL` | `100vw` — heroes, film beats, section dividers |
+| `SIZES_CONTENT` | The full width of a `content` container |
+| `SIZES_SPLIT` | One column of an even `SplitLayout` at `gap="lg"` |
+| `SIZES_MEDIA_COLUMN` | The media column of a `media-wide` split (1.4fr of 2.4fr) |
+
+`slotSizes` reads the container's own arithmetic: the `max-w-wide` content box is
+`vw − 40px` below 400px, `90vw` to 1536px, then a fixed 1392px (96rem less two
+4.5rem gutters). Column gaps are deliberately left out, which over-states a slot
+by under 4% — the safe direction, since an under-stated `sizes` serves a soft
+image and quality comes before bytes.
+
+The specimen routes have their own `specSlotSizes` in `src/components/specimen/Spec.tsx`,
+because a spec sheet's demonstration grid is not the production grid and sharing
+one helper between them would make each a hostage to the other.
+
+**Honesty is measurable.** `naturalWidth / renderedWidth` should sit at 1.00 for
+a correctly described srcset — the HTML spec density-corrects `naturalWidth` by
+the `sizes` length, so any other value means `sizes` is lying. Waste is a
+separate number: the `w=` parameter against `rendered × DPR`.
 
 System: `src/lib/images.ts` · Component: `src/components/EditorialImage.tsx` ·
 Proof: `/system/imagery`
@@ -333,10 +398,22 @@ Proof: `/system/imagery`
 
 ## 7. Video
 
-Used sparingly. **Never autoplays with sound.**
+**There is none, and that is a decision rather than an omission.**
 
-Every clip needs a poster frame drawn from the image manifest, so the block is
-composed before playback begins and degrades to a still on a slow connection.
+The two places the site talks about film — the homepage beat and the portfolio
+beat — are poster frames held behind a scrim. No clip has been licensed for this
+build, and a still we can stand behind beats a remote video that may not load,
+cannot be art-directed per breakpoint, and costs megabytes on a phone. Adding one
+to look more sophisticated is the failure mode this section exists to prevent.
+
+A set of `videoDefaults` used to sit in `src/lib/images.ts` describing how a clip
+would be configured. It had no consumers and no asset, so it documented an
+intention as though it were an implementation, and it was removed. The rules
+below are the specification for whoever licenses a real clip.
+
+Used sparingly. **Never autoplays with sound.** Every clip needs a poster frame
+drawn from the image manifest, so the block is composed before playback begins
+and degrades to a still on a slow connection.
 
 | | Ambient background film | Featured film |
 | --- | --- | --- |
@@ -350,8 +427,6 @@ composed before playback begins and degrades to a still on a slow connection.
 Ambient video is decorative: under `prefers-reduced-motion` or Save-Data the
 poster is shown and the video never loads. A featured film opens in a modal with
 focus trapped and Escape to close.
-
-Defaults: `videoDefaults` in `src/lib/images.ts`.
 
 ---
 
@@ -592,7 +667,17 @@ page-level overflow.
 
 ### Overflow discipline
 
-Target widths: 320 · 375 · 414 · 768 · 1024 · 1280 · 1440.
+Target widths: 320 · 375 · 414 · **700** · 768 · **820** · **900** · 1024 · 1280 ·
+1440. The three in bold sit *between* the common device sizes and are where a
+grid tested only at 375/768/1440 tends to break. All ten routes were swept across
+all ten widths and `scrollWidth` equalled `clientWidth` in every one of the 100
+combinations.
+
+**A box extending past the viewport is not overflow if an ancestor clips it.**
+The portfolio hover-scale wrappers do exactly that — the rect grows 5% while the
+`overflow-hidden` parent holds the line — so a bare `getBoundingClientRect().right > innerWidth`
+check reports dozens of false positives. `scrollWidth` is the arbiter; anything
+else needs the clipping ancestor checked before it counts.
 
 The system is structurally resistant to horizontal overflow because type,
 spacing and gutters are all `clamp()`-based and widths are expressed as
@@ -618,6 +703,35 @@ treatment or a smaller floor.**
 - Meaningful `alt` on every image; decorative elements are `aria-hidden`.
 - State is never signalled by colour alone.
 
+### Text over photography — measure the scrim, do not eyeball it
+
+A scrim is a contrast mechanism, not a mood. It has to be measured against the
+**palest photograph in the set**, because that is the frame that decides whether
+the type is legible, and it is never the one you happen to be looking at.
+
+Two things make an eyeballed judgement wrong in the same direction every time:
+
+- **Element `opacity` is not in the computed colour.** A run set in
+  `text-text-inverse` at `opacity-75` composites to something quite different
+  from `#FAF8F5`, and every contrast tool that reads `getComputedStyle().color`
+  will report the uncomposited value. Multiply the ancestor opacity chain and
+  composite the result over the actual pixels underneath.
+- **The background is a photograph, not a colour.** Sample many points across the
+  run and take the *worst* ratio, not the mean.
+
+Measured under those rules, three placements were failing and were corrected by
+weighting the scrim — not by changing type colour, size or the palette:
+
+| Placement | Size | Was | Now | Needs |
+| --- | --- | --- | --- | --- |
+| Hero headline | 52–151px | 2.41 | 3.39 | 3:1 |
+| Hero subhead (`opacity-80`) | 17px | 4.32 | 5.37 | 4.5:1 |
+| Portfolio location line (`opacity-75`) | 12px | 3.31 | 5.06 | 4.5:1 |
+
+The portfolio scrim is therefore present but weightless until hover, rather than
+absent until hover. The 12px location line is the constraint that sets its
+weight, and the high-key frames are where it bites.
+
 ### Reduced motion
 
 Not a degraded experience. A different, equally finished one.
@@ -634,11 +748,40 @@ Enforced in **three** places, because one is not enough:
 
 1. `MotionConfig reducedMotion="user"` globally (`src/components/Providers.tsx`).
 2. A `useReducedMotion()` check in every animated component, collapsing to `reducedVariants`.
-3. A CSS backstop in `globals.css` forcing any `[data-reveal]` element visible.
+3. A CSS backstop in `globals.css` forcing any `[data-reveal]` element visible,
+   and neutralising the route veil (`[data-page-veil] { display: none }`) and the
+   page wrapper (`[data-page-enter] { opacity: 1 }`).
 
 The third exists specifically because **`clip-path` is not covered by Motion's
 automatic reduced-motion handling** — without it, a masked image would stay
-hidden.
+hidden. The veil and the wrapper are in there for a different reason: both ship
+*covering* or *invisible* and are opened by script, so the blanket
+`transition-duration: 0.01ms` override cannot reach them. A veil that never
+retracts is a blank page.
+
+> **Structural rule — never branch component structure on `useReducedMotion()`.**
+> The server cannot know the preference, so a `reduced ? <A/> : <B/>` return
+> renders one tree on the server and another on the client. `PageTransition`
+> did this and produced a hydration mismatch on **every route of the site**.
+> `transition` is safe to vary because it never reaches the server HTML;
+> structure and `initial` are not. Shorten the animation, do not replace the
+> tree — and let the CSS above cover the window before hydration.
+
+Verified under emulated `prefers-reduced-motion: reduce` across all four public
+routes at both viewports: CLS 0, zero console errors, and nothing left
+invisible except the desktop hover overlay, whose information is carried by the
+link's `aria-label` and revealed on focus.
+
+### Failure is a layout requirement, not an error state
+
+With every photograph blocked at the network layer and the HTTP cache disabled,
+the page must still hold its shape. Measured: **0 collapsed boxes, unchanged text
+runs, no horizontal overflow, no console errors, and page heights identical to
+the loaded state** on all four routes at both viewports. That identity is the
+point — it is the evidence that layout does not depend on an image arriving.
+
+Blocking URLs without also disabling the cache is theatre; Chrome serves the
+photographs it already has and every frame renders perfectly.
 
 ---
 

@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { SpecSection, SpecRow, SpecNote } from "@/components/specimen/Spec";
+import {
+  SpecSection,
+  SpecRow,
+  SpecNote,
+  SPEC_ROW_SIZES,
+} from "@/components/specimen/Spec";
 import { Eyebrow, Lead, Meta, SectionHeading } from "@/components/Typography";
 import { Wordmark } from "@/components/Wordmark";
 import { EditorialLink, EditorialButton } from "@/components/EditorialLink";
@@ -48,7 +53,7 @@ export default function ComponentsPage() {
         <SpecRow label="Over photography" note="tone=light + scrim">
           <ImageOverlay
             image={images.hero}
-            size="content"
+            sizes={SPEC_ROW_SIZES}
             reveal="none"
             position="center"
             scrim="strong"

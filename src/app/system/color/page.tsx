@@ -6,6 +6,10 @@ import { images } from "@/lib/images";
 
 export const metadata: Metadata = { title: "Colour" };
 
+/** The wide half of the closing `md:grid-cols-[1.2fr_1fr]` plate. */
+const COLOUR_PLATE_SIZES =
+  "(min-width: 75rem) 589px, (min-width: 48rem) 49vw, 90vw";
+
 /**
  * Contrast figures are measured, not estimated — recompute if any value moves.
  * Every pairing used for text clears WCAG AA; `border-strong` clears 1.4.11 for
@@ -141,7 +145,7 @@ export default function ColorPage() {
           <div className="bg-bg">
             <EditorialImage
               image={images.hero}
-              size="half"
+              sizes={COLOUR_PLATE_SIZES}
               reveal="scaleFade"
               ar={{ desktop: "wide", mobile: "wide" }}
             />

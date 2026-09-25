@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
-  unsplash,
-  unsplashLoader,
   aspectClass,
   aspectClassMd,
-  sizes as sizePresets,
+  desktopWidths,
+  fallbackSrc,
+  mobileWidths,
+  slotSizes,
+  srcSet,
   type AspectName,
-  type SizesName,
   type StudioImage,
 } from "@/lib/images";
 import { duration, ease, maskUp, reducedVariants, viewport, withDelay } from "@/lib/motion";
@@ -27,27 +28,11 @@ import { cn } from "@/lib/cn";
  * There is no hover state to discover, so none is required.
  */
 
-const SRCSET_WIDTHS = [420, 640, 828, 1080, 1280, 1600, 1920];
-const MOBILE_WIDTHS = [420, 640, 828, 1080];
-
-function buildSrcSet(
-  id: string,
-  ar: AspectName,
-  crop: StudioImage["crop"],
-  widths: number[]
-) {
-  return widths
-    .map(
-      (w) =>
-        `${unsplashLoader({ src: unsplash(id, { ar, crop }), width: w, quality: 74 })} ${w}w`
-    )
-    .join(", ");
-}
-
 type PortfolioProjectProps = {
   image: StudioImage;
   href?: string;
-  size?: SizesName;
+  /** How wide this frame renders. Build it with `slotSizes(desktop, mobile)`. */
+  sizes?: string;
   ar?: { desktop: AspectName; mobile: AspectName };
   delay?: number;
   /** Index shown in the corner rail, e.g. 01. */
@@ -58,7 +43,7 @@ type PortfolioProjectProps = {
 export function PortfolioProject({
   image,
   href = "#",
-  size = "half",
+  sizes = slotSizes(6, 12),
   ar,
   delay = 0,
   index,
@@ -108,17 +93,13 @@ export function PortfolioProject({
               <picture>
                 <source
                   media="(min-width: 48rem)"
-                  srcSet={buildSrcSet(image.id, ratio.desktop, image.crop, SRCSET_WIDTHS)}
-                  sizes={sizePresets[size]}
+                  srcSet={srcSet(image, ratio.desktop, desktopWidths)}
+                  sizes={sizes}
                 />
                 <img
-                  src={unsplashLoader({
-                    src: unsplash(image.id, { ar: ratio.mobile, crop: image.crop }),
-                    width: 828,
-                    quality: 74,
-                  })}
-                  srcSet={buildSrcSet(image.id, ratio.mobile, image.crop, MOBILE_WIDTHS)}
-                  sizes={sizePresets[size]}
+                  src={fallbackSrc(image, ratio.mobile)}
+                  srcSet={srcSet(image, ratio.mobile, mobileWidths)}
+                  sizes={sizes}
                   alt={image.alt}
                   loading="lazy"
                   decoding="async"
@@ -128,20 +109,23 @@ export function PortfolioProject({
             </motion.div>
 
             {/* Scrim. Present but weightless until hover, so the metadata below
-                always has something to sit against on darker photographs. */}
+                always has something to sit against — including on the pale,
+                high-key frames, which are the ones that actually threaten the
+                12px location line. Measured, not guessed: at /55 that line fell
+                to 3.3:1 over the brightest images in the set. */}
             <div
               aria-hidden="true"
               className={cn(
                 "pointer-events-none absolute inset-0",
-                "bg-gradient-to-t from-ink-900/55 via-ink-900/5 to-transparent",
-                "opacity-0 transition-opacity duration-[var(--duration-slow)] ease-editorial",
+                "bg-linear-to-t from-ink-900/75 via-ink-900/10 to-transparent",
+                "opacity-0 transition-opacity duration-(--duration-slow) ease-editorial",
                 "group-hover/project:opacity-100 group-focus-within/project:opacity-100",
                 "max-md:opacity-100"
               )}
             />
 
             {index !== undefined && (
-              <span className="type-meta absolute left-5 top-5 text-text-inverse opacity-0 transition-opacity duration-[var(--duration-slow)] ease-editorial group-hover/project:opacity-80 group-focus-within/project:opacity-80 max-md:opacity-80">
+              <span className="type-meta absolute left-5 top-5 text-text-inverse opacity-0 transition-opacity duration-(--duration-slow) ease-editorial group-hover/project:opacity-80 group-focus-within/project:opacity-80 max-md:opacity-80">
                 {String(index).padStart(2, "0")}
               </span>
             )}
@@ -153,7 +137,7 @@ export function PortfolioProject({
                 "pointer-events-none absolute inset-x-5 bottom-5 hidden md:flex",
                 "items-end justify-between gap-4",
                 "translate-y-2 opacity-0",
-                "transition-[opacity,transform] duration-[var(--duration-slow)] ease-editorial",
+                "transition-[opacity,transform] duration-(--duration-slow) ease-editorial",
                 "group-hover/project:translate-y-0 group-hover/project:opacity-100",
                 "group-focus-within/project:translate-y-0 group-focus-within/project:opacity-100"
               )}

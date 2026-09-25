@@ -5,7 +5,7 @@ import { Meta, SectionHeading } from "./Typography";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/cn";
 import { serviceSlug } from "@/lib/studio";
-import type { AspectName, SizesName, StudioImage } from "@/lib/images";
+import { slotSizes, type AspectName, type StudioImage } from "@/lib/images";
 
 /**
  * One entry in the services catalogue.
@@ -50,7 +50,6 @@ export type ServiceLayout =
 type Slot = {
   text: { span: Span; start: Span; offsetTop: Offset };
   media: { span: Span; start: Span; spanMobile: Span; offsetTop: Offset };
-  size: SizesName;
   /**
    * Whether the two blocks share a row. Both are pinned explicitly when they
    * do: grid auto-placement never moves its cursor backwards, so a frame at
@@ -64,31 +63,26 @@ const layouts: Record<ServiceLayout, Slot> = {
   "media-right": {
     text: { span: 4, start: 1, offsetTop: "md" },
     media: { span: 7, start: 6, spanMobile: 12, offsetTop: "none" },
-    size: "offset",
     sameRow: true,
   },
   "media-left": {
     text: { span: 4, start: 8, offsetTop: "lg" },
     media: { span: 6, start: 1, spanMobile: 10, offsetTop: "none" },
-    size: "offset",
     sameRow: true,
   },
   "media-right-inset": {
     text: { span: 5, start: 1, offsetTop: "sm" },
     media: { span: 4, start: 9, spanMobile: 8, offsetTop: "none" },
-    size: "third",
     sameRow: true,
   },
   "media-left-wide": {
     text: { span: 4, start: 9, offsetTop: "md" },
     media: { span: 7, start: 1, spanMobile: 12, offsetTop: "none" },
-    size: "offset",
     sameRow: true,
   },
   "media-below": {
     text: { span: 6, start: 1, offsetTop: "none" },
     media: { span: 12, start: 1, spanMobile: 12, offsetTop: "none" },
-    size: "content",
     sameRow: false,
   },
 };
@@ -158,7 +152,7 @@ export function ServiceEntry({
         >
           <EditorialImage
             image={service.image}
-            size={slot.size}
+            sizes={slotSizes(slot.media.span, slot.media.spanMobile)}
             ar={service.ar}
             reveal={service.reveal ?? "maskUp"}
             delay={0.06}

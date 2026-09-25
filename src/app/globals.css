@@ -413,4 +413,20 @@
     transform: none !important;
     clip-path: none !important;
   }
+
+  /*
+   * The route veil ships covering the viewport and is retracted by script, so
+   * it is removed here rather than slowed: the transition override above
+   * cannot touch a script-driven animation, and a veil that never retracts is
+   * a blank page. Same reasoning for the page wrapper, which ships at
+   * opacity 0.
+   */
+  [data-page-veil] {
+    display: none !important;
+  }
+
+  [data-page-enter] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

@@ -2,13 +2,15 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import {
-  unsplash,
-  unsplashLoader,
   aspectClass,
   aspectClassMd,
-  sizes as sizePresets,
+  desktopWidths,
+  fallbackSrc,
+  mobileWidths,
+  slotSizes,
+  srcSet,
+  SIZES_FULL,
   type AspectName,
-  type SizesName,
   type StudioImage,
 } from "@/lib/images";
 import {
@@ -38,31 +40,8 @@ import { Meta } from "./Typography";
  * reserved before any bytes arrive.
  */
 
-/** Matches `deviceSizes` in next.config.ts. */
-const SRCSET_WIDTHS = [420, 640, 828, 1080, 1280, 1600, 1920, 2560];
-
-/** Mobile never needs the top of the width range. */
-const MOBILE_WIDTHS = [420, 640, 828, 1080, 1280];
-
+/** Where `md:` engages, and so where the art direction switches crop. */
 const DESKTOP_BREAKPOINT = "(min-width: 48rem)";
-
-function buildSrcSet(
-  id: string,
-  ar: AspectName,
-  crop: StudioImage["crop"],
-  widths: number[]
-): string {
-  return widths
-    .map((w) => {
-      const url = unsplashLoader({
-        src: unsplash(id, { ar, crop }),
-        width: w,
-        quality: 74,
-      });
-      return `${url} ${w}w`;
-    })
-    .join(", ");
-}
 
 const revealVariantMap = {
   maskUp,
@@ -75,8 +54,12 @@ export type ImageRevealName = keyof typeof revealVariantMap | "none";
 
 export type EditorialImageProps = {
   image: StudioImage;
-  /** Which slot this image occupies. Drives the `sizes` attribute. */
-  size?: SizesName;
+  /**
+   * How wide this frame actually renders. Build it with `slotSizes(desktopSpan,
+   * mobileSpan)` next to the `GridItem` that sets those spans, or use
+   * `SIZES_FULL` / `SIZES_SPLIT` for the two slots that are not grid columns.
+   */
+  sizes?: string;
   /** Which reveal the image uses when it enters the viewport. */
   reveal?: ImageRevealName;
   /** Above the fold. Loads eagerly at high priority — hero only. */
@@ -97,7 +80,7 @@ export type EditorialImageProps = {
 
 export function EditorialImage({
   image,
-  size = "content",
+  sizes = slotSizes(12, 12),
   reveal = "maskUp",
   priority = false,
   ar,
@@ -108,24 +91,6 @@ export function EditorialImage({
 }: EditorialImageProps) {
   const reduced = useReducedMotion();
   const ratio = ar ?? image.ar;
-
-  const desktopSrcSet = buildSrcSet(
-    image.id,
-    ratio.desktop,
-    image.crop,
-    SRCSET_WIDTHS
-  );
-  const mobileSrcSet = buildSrcSet(
-    image.id,
-    ratio.mobile,
-    image.crop,
-    MOBILE_WIDTHS
-  );
-  const fallback = unsplashLoader({
-    src: unsplash(image.id, { ar: ratio.mobile, crop: image.crop }),
-    width: 828,
-    quality: 74,
-  });
 
   const wrapperVariants =
     reduced || reveal === "none"
@@ -167,17 +132,20 @@ export function EditorialImage({
             <picture>
               <source
                 media={DESKTOP_BREAKPOINT}
-                srcSet={desktopSrcSet}
-                sizes={sizePresets[size]}
+                srcSet={srcSet(image, ratio.desktop, desktopWidths)}
+                sizes={sizes}
               />
               <img
-                src={fallback}
-                srcSet={mobileSrcSet}
-                sizes={sizePresets[size]}
+                src={fallbackSrc(image, ratio.mobile)}
+                srcSet={srcSet(image, ratio.mobile, mobileWidths)}
+                sizes={sizes}
                 alt={image.alt}
                 loading={priority ? "eager" : "lazy"}
                 fetchPriority={priority ? "high" : "auto"}
-                decoding={priority ? "sync" : "async"}
+                // Never "sync": it blocks the main thread on the one image the
+                // page can least afford to stall behind. fetchPriority already
+                // wins the hero the bandwidth it needs.
+                decoding={priority ? "auto" : "async"}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </picture>
@@ -202,13 +170,13 @@ export function EditorialImage({
  */
 export function FullBleedImage({
   className,
-  size = "full",
+  sizes = SIZES_FULL,
   ...props
 }: EditorialImageProps) {
   return (
     <EditorialImage
       {...props}
-      size={size}
+      sizes={sizes}
       className={cn("full-bleed", className)}
     />
   );

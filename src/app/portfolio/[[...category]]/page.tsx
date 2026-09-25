@@ -18,7 +18,9 @@ import {
   filmPoster,
   isCategorySlug,
   piecesIn,
+  slotSizes,
   workCategories,
+  SIZES_FULL,
   type ArchivePiece,
   type CategorySlug,
 } from "@/lib/images";
@@ -125,12 +127,12 @@ export async function generateMetadata({
  * a smaller measure.
  */
 const cadence = [
-  { span: 7, start: 1, spanMobile: 12, offsetTop: "none", size: "half", reveal: "maskUp" },
-  { span: 4, start: 9, spanMobile: 8, offsetTop: "lg", size: "third", reveal: "maskRight" },
-  { span: 5, start: 1, spanMobile: 10, offsetTop: "sm", size: "third", reveal: "maskUp" },
-  { span: 6, start: 7, spanMobile: 12, offsetTop: "none", size: "half", reveal: "scaleFade" },
-  { span: 9, start: 4, spanMobile: 12, offsetTop: "md", size: "content", reveal: "clipExpand" },
-  { span: 4, start: 1, spanMobile: 9, offsetTop: "none", size: "third", reveal: "maskUp" },
+  { span: 7, start: 1, spanMobile: 12, offsetTop: "none", reveal: "maskUp" },
+  { span: 4, start: 9, spanMobile: 8, offsetTop: "lg", reveal: "maskRight" },
+  { span: 5, start: 1, spanMobile: 10, offsetTop: "sm", reveal: "maskUp" },
+  { span: 6, start: 7, spanMobile: 12, offsetTop: "none", reveal: "scaleFade" },
+  { span: 9, start: 4, spanMobile: 12, offsetTop: "md", reveal: "clipExpand" },
+  { span: 4, start: 1, spanMobile: 9, offsetTop: "none", reveal: "maskUp" },
 ] as const;
 
 function ArchiveFrame({
@@ -152,7 +154,7 @@ function ArchiveFrame({
     >
       <EditorialImage
         image={piece.image}
-        size={slot.size}
+        sizes={slotSizes(slot.span, slot.spanMobile)}
         reveal={slot.reveal}
         delay={(index % 3) * 0.06}
       />
@@ -238,7 +240,7 @@ export default async function PortfolioPage({
         <Section space="sm" container={false}>
           <EditorialImage
             image={cover.image}
-            size="full"
+            sizes={SIZES_FULL}
             reveal="clipExpand"
             priority
             ar={{ desktop: "panorama", mobile: "portrait" }}
@@ -311,7 +313,7 @@ export default async function PortfolioPage({
       <Section space="none" surface="dark" container={false}>
         <ImageOverlay
           image={filmPoster}
-          size="full"
+          sizes={SIZES_FULL}
           reveal="clipExpand"
           ar={{ desktop: "cinema", mobile: "portrait" }}
           scrim="strong"

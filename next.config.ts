@@ -1,20 +1,20 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  images: {
-    formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
-    ],
-    // Breakpoints tuned for a photography site: large hero widths matter more
-    // than the default small end of the scale.
-    deviceSizes: [420, 640, 828, 1080, 1280, 1600, 1920, 2560, 3200],
-    imageSizes: [180, 240, 320, 400],
-  },
-};
+/**
+ * Nothing to configure, and that is worth saying once.
+ *
+ * An `images` block used to sit here — formats, `remotePatterns`, `deviceSizes`,
+ * `imageSizes` — and not one line of it ever ran. That block configures
+ * `next/image` and the built-in Image Optimization API, and this site renders
+ * neither: every frame is a hand-rolled `<picture>` with two art-directed
+ * sources, because `next/image` emits a single `<img>` and cannot vary its
+ * source by media query.
+ *
+ * Config that looks load-bearing but is inert is worse than no config, because
+ * the next person tunes it and wonders why nothing moves. The widths, the
+ * format negotiation and the Unsplash host all live in `src/lib/images.ts`,
+ * which is where they actually take effect.
+ */
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

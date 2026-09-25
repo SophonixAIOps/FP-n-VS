@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { SpecSection, SpecRow, SpecNote } from "@/components/specimen/Spec";
+import {
+  SpecSection,
+  SpecRow,
+  SpecNote,
+  specSlotSizes,
+} from "@/components/specimen/Spec";
 import { Eyebrow, Meta, SectionHeading } from "@/components/Typography";
 import {
   Container,
@@ -15,7 +20,7 @@ import {
 import { EditorialImage, ImageOverlay } from "@/components/EditorialImage";
 import { EditorialLink } from "@/components/EditorialLink";
 import { ProjectMeta } from "@/components/ProjectMeta";
-import { images } from "@/lib/images";
+import { images, SIZES_CONTENT, SIZES_MEDIA_COLUMN } from "@/lib/images";
 
 export const metadata: Metadata = { title: "Layout" };
 
@@ -156,7 +161,7 @@ export default function LayoutPage() {
             media={
               <EditorialImage
                 image={second}
-                size="offset"
+                sizes={SIZES_MEDIA_COLUMN}
                 reveal="scaleFade"
                 ar={{ desktop: "wide", mobile: "wide" }}
               />
@@ -186,7 +191,7 @@ export default function LayoutPage() {
             <GridItem span={7}>
               <EditorialImage
                 image={first}
-                size="offset"
+                sizes={specSlotSizes(7)}
                 reveal="maskUp"
                 ar={{ desktop: "wide", mobile: "wide" }}
               />
@@ -195,7 +200,7 @@ export default function LayoutPage() {
             <GridItem span={4} start={9} spanMobile={8} offsetTop="md">
               <EditorialImage
                 image={detailA}
-                size="detail"
+                sizes={specSlotSizes(4, 8)}
                 reveal="maskUp"
                 delay={0.1}
                 ar={{ desktop: "editorial", mobile: "editorial" }}
@@ -338,7 +343,7 @@ export default function LayoutPage() {
         >
           <ImageOverlay
             image={images.cta}
-            size="content"
+            sizes={SIZES_CONTENT}
             reveal="none"
             position="bottom-left"
             scrim="strong"

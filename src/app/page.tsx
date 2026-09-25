@@ -12,7 +12,7 @@ import { EditorialButton, EditorialLink } from "@/components/EditorialLink";
 import { EditorialImage, ImageOverlay } from "@/components/EditorialImage";
 import { PortfolioProject } from "@/components/PortfolioProject";
 import { Reveal } from "@/components/Reveal";
-import { images } from "@/lib/images";
+import { images, slotSizes, SIZES_FULL } from "@/lib/images";
 import { pageMetadata } from "@/lib/seo";
 import { STUDIO_NAME } from "@/lib/studio";
 
@@ -114,7 +114,7 @@ export default function Page() {
       <section className="relative h-svh min-h-136 w-full overflow-hidden bg-bg-dark">
         <EditorialImage
           image={images.hero}
-          size="full"
+          sizes={SIZES_FULL}
           reveal="clipExpand"
           priority
           fill
@@ -123,7 +123,7 @@ export default function Page() {
 
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-linear-to-b from-ink-900/55 via-ink-900/10 to-ink-900/75"
+          className="absolute inset-0 bg-linear-to-b from-ink-900/55 via-ink-900/25 to-ink-900/85"
         />
 
         <div className="absolute inset-0 flex items-end">
@@ -221,7 +221,7 @@ export default function Page() {
             <PortfolioProject
               image={images.portfolio[0]}
               href="/portfolio"
-              size="offset"
+              sizes={slotSizes(7)}
               index={1}
             />
           </GridItem>
@@ -230,7 +230,7 @@ export default function Page() {
             <PortfolioProject
               image={images.portfolio[1]}
               href="/portfolio"
-              size="detail"
+              sizes={slotSizes(4)}
               index={2}
               delay={0.08}
             />
@@ -240,7 +240,7 @@ export default function Page() {
             <PortfolioProject
               image={images.portfolio[2]}
               href="/portfolio"
-              size="offset"
+              sizes={slotSizes(5)}
               index={3}
             />
           </GridItem>
@@ -249,7 +249,7 @@ export default function Page() {
             <PortfolioProject
               image={images.portfolio[5]}
               href="/portfolio"
-              size="offset"
+              sizes={slotSizes(6)}
               index={4}
               delay={0.08}
             />
@@ -259,7 +259,7 @@ export default function Page() {
             <PortfolioProject
               image={images.portfolio[4]}
               href="/portfolio"
-              size="content"
+              sizes={slotSizes(9)}
               index={5}
             />
           </GridItem>
@@ -322,7 +322,7 @@ export default function Page() {
       <Section space="none" surface="dark" container={false}>
         <ImageOverlay
           image={images.portfolio[3]}
-          size="full"
+          sizes={SIZES_FULL}
           reveal="clipExpand"
           ar={{ desktop: "cinema", mobile: "portrait" }}
           scrim="strong"
@@ -384,7 +384,7 @@ export default function Page() {
          * crop keeps the veil and the stones but loses the couple, and the alt
          * text describes them.
          */}
-        <EditorialImage image={images.cta} size="full" reveal="maskUp" />
+        <EditorialImage image={images.cta} sizes={SIZES_FULL} reveal="maskUp" />
         <Container width="wide" className="mt-5">
           <Meta>The Long Veil — Pembrokeshire, Wales · 2024</Meta>
         </Container>

@@ -1,5 +1,3 @@
-import type { ImageLoaderProps } from "next/image";
-
 /**
  * FRAME & STORY STUDIO — IMAGE SYSTEM
  *
@@ -34,7 +32,7 @@ import type { ImageLoaderProps } from "next/image";
    A fixed vocabulary, mirrored by the --aspect-* tokens in globals.css.
    --------------------------------------------------------------------------- */
 
-export const aspectRatio = {
+const aspectRatio = {
   panorama: "21:9",
   cinema: "16:9",
   wide: "3:2",
@@ -79,9 +77,21 @@ export const aspectClassMd: Record<AspectName, string> = {
 /**
  * Delegates resizing to the Unsplash CDN. Any `ar`, `crop` or `fp-*` params
  * already baked into the src by `unsplash()` are preserved — this only layers
- * on the width and quality Next requests for each srcset entry.
+ * on the width and quality for one srcset candidate.
+ *
+ * Quality defaults to 74 and no caller overrides it. Keeping it one number
+ * rather than a per-call-site knob is deliberate: quality is a house style, and
+ * a site where each frame picks its own drifts within a single scroll.
  */
-export function unsplashLoader({ src, width, quality }: ImageLoaderProps): string {
+function unsplashLoader({
+  src,
+  width,
+  quality,
+}: {
+  src: string;
+  width: number;
+  quality?: number;
+}): string {
   const url = new URL(src);
   url.searchParams.set("auto", "format");
   url.searchParams.set("fit", "crop");
@@ -103,7 +113,7 @@ type UnsplashOptions = {
  * Builds an art-directed source URL. This is where cropping is decided —
  * never crop with CSS `object-position` when the ratio can be set here.
  */
-export function unsplash(id: string, options: UnsplashOptions = {}): string {
+function unsplash(id: string, options: UnsplashOptions = {}): string {
   const url = new URL(`https://images.unsplash.com/${id}`);
   const { ar, crop = "entropy", fp } = options;
 
@@ -146,27 +156,105 @@ export function socialImage(id: string, width = 1200, height = 630): string {
 
 /* ---------------------------------------------------------------------------
    RESPONSIVE SIZES
-   Always pass one of these to <Image sizes>. Getting `sizes` wrong is the
-   single most expensive performance mistake on an image-led site — the browser
-   will download a 2560px file for a 400px slot.
+   ---------------------------------------------------------------------------
+   Getting `sizes` wrong is the most expensive mistake available on an image-led
+   site. The browser picks its srcset candidate from this number alone, before
+   layout exists, so a wrong value is paid for on every single page load.
+
+   These are derived from the grid rather than estimated. Editorial images sit
+   in the twelve-column grid inside `max-w-wide`, whose content box measures:
+
+     vw <= 400px      vw - 40px   the gutter bottoms out at 1.25rem
+     400px - 1536px   90vw        the gutter is 5vw a side
+     vw >= 1536px     1392px      96rem container less two 4.5rem gutters
+
+   so a slot spanning n of the twelve columns is n/12 of that. The 24px column
+   gaps are left out, which over-states a slot by under 4%. That is the safe
+   direction: an under-stated `sizes` serves a soft image, and quality comes
+   before bytes.
    --------------------------------------------------------------------------- */
 
-export const sizes = {
-  /** Full-bleed hero and full-width imagery. */
-  full: "100vw",
-  /** Two-up editorial pairing. */
-  half: "(min-width: 64rem) 50vw, 100vw",
-  /** Three-up gallery row. */
-  third: "(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw",
-  /** Image constrained to the standard content column. */
-  content: "(min-width: 75rem) 1200px, 92vw",
-  /** Offset editorial image — roughly half the column on desktop. */
-  offset: "(min-width: 64rem) 46vw, 92vw",
-  /** Small supporting detail shot. */
-  detail: "(min-width: 64rem) 28vw, 55vw",
-} as const;
+/** `max-w-wide` (96rem) less its two 4.5rem gutters. */
+const WIDE_CONTENT_MAX = 1392;
 
-export type SizesName = keyof typeof sizes;
+/** Where `md:col-span-*` engages, and so where the desktop <source> takes over. */
+const MD = "(min-width: 48rem)";
+
+/** Where 90vw overtakes WIDE_CONTENT_MAX and the container stops growing. */
+const CAPPED = "(min-width: 97rem)";
+
+const columnsToVw = (span: number) => Number(((span / 12) * 90).toFixed(2));
+
+/**
+ * The `sizes` attribute for an image filling `desktop` of the twelve columns
+ * above 48rem and `mobile` of them below it.
+ *
+ * Pass the same numbers given to the enclosing `GridItem`. They are meant to be
+ * read side by side — a slot that states its width two lines from where it sets
+ * it is a slot that cannot quietly drift out of sync.
+ */
+export function slotSizes(desktop: number, mobile: number = 12): string {
+  const cap = Math.round((desktop / 12) * WIDE_CONTENT_MAX);
+  return `${CAPPED} ${cap}px, ${MD} ${columnsToVw(desktop)}vw, ${columnsToVw(mobile)}vw`;
+}
+
+/** Edge-to-edge imagery: heroes, film beats, section dividers. */
+export const SIZES_FULL = "100vw";
+
+/*
+ * The three slots below are not grid columns, so they are measured rather than
+ * spanned. All three sit in a `content` container, whose box is min(90vw,
+ * 1080px) — 75rem wide, less two gutters that stop growing at 4.5rem.
+ */
+
+/** The full width of a `content` container. */
+export const SIZES_CONTENT = "(min-width: 75rem) 1080px, 90vw";
+
+/** One column of an even `SplitLayout` at `gap="lg"`: (box - 80px) / 2. */
+export const SIZES_SPLIT = `(min-width: 75rem) 500px, ${MD} calc(45vw - 40px), 90vw`;
+
+/** The media column of a `media-wide` split — 1.4fr of 2.4fr, after the gap. */
+export const SIZES_MEDIA_COLUMN = `(min-width: 75rem) 583px, ${MD} calc(52.5vw - 46px), 90vw`;
+
+/* ---------------------------------------------------------------------------
+   SRCSET
+   --------------------------------------------------------------------------- */
+
+/**
+ * One ladder, sliced for the two sources. Steps sit roughly 1.2x apart, which
+ * bounds rounding waste at about 20% — tighter spacing buys very little once
+ * `sizes` is honest, and costs srcset markup on every frame.
+ *
+ * The low end is there for the desktop <source>: at 768px, where it takes over,
+ * a four-column slot is only about 230px wide.
+ */
+const WIDTHS = [
+  260, 340, 420, 480, 560, 640, 750, 828, 960, 1080, 1280, 1440, 1600, 1920, 2560,
+];
+
+/** Below 48rem the viewport is the ceiling, so the top of the ladder is dead weight. */
+export const mobileWidths = WIDTHS.filter((w) => w <= 1440);
+export const desktopWidths = WIDTHS;
+
+/**
+ * Every `<source>` and `<img>` on the site gets its candidates from here, so
+ * crop and focal point travel with the image rather than being re-specified —
+ * and forgotten — at each call site.
+ */
+export function srcSet(
+  image: StudioImage,
+  ar: AspectName,
+  widths: readonly number[]
+): string {
+  const src = unsplash(image.id, { ar, crop: image.crop, fp: image.fp });
+  return widths.map((w) => `${unsplashLoader({ src, width: w })} ${w}w`).join(", ");
+}
+
+/** The `src` a browser without srcset support falls back to. */
+export function fallbackSrc(image: StudioImage, ar: AspectName, width = 828): string {
+  const src = unsplash(image.id, { ar, crop: image.crop, fp: image.fp });
+  return unsplashLoader({ src, width });
+}
 
 /* ---------------------------------------------------------------------------
    MANIFEST
@@ -192,6 +280,16 @@ export type StudioImage = {
    */
   ar: { desktop: AspectName; mobile: AspectName };
   crop?: UnsplashOptions["crop"];
+  /**
+   * Focal point, 0–1 from the top left. Read only when `crop` is
+   * "focalpoint" — set both or neither.
+   *
+   * Nothing in the manifest needs one today. Every frame below was reviewed at
+   * both its desktop and its mobile aspect and entropy or faces held the
+   * subject in every case, so a focal point here would be a guess overriding a
+   * measurement. It exists for the frame that eventually defeats both.
+   */
+  fp?: UnsplashOptions["fp"];
   /** Editorial metadata shown on portfolio hover. */
   title?: string;
   /**
@@ -473,32 +571,14 @@ export function piecesIn(slug: CategorySlug): ArchivePiece[] {
 /* ---------------------------------------------------------------------------
    VIDEO
    ---------------------------------------------------------------------------
-   Video is used sparingly and never autoplays with sound. Every clip needs a
-   poster frame drawn from the image manifest so the block is composed before
-   playback begins, and so it degrades to a still on slow connections.
+   There is none, and that is a decision rather than an omission. The two places
+   the site talks about film — the homepage beat and the portfolio beat — are
+   poster frames held behind a scrim. No clip has been licensed for this build,
+   and a still we can actually stand behind beats a remote video that may not
+   load, cannot be art-directed per breakpoint, and costs megabytes on a phone.
 
-   Defaults for ambient background film: muted, loop, playsInline, autoPlay,
-   preload="metadata", poster set. Reduced motion or save-data means the poster
-   is shown and the video never loads.
-
-   Defaults for a featured film: controls, no autoplay, poster set, opened in a
-   modal with focus trapped and Escape to close.
+   A set of unused `videoDefaults` used to sit here describing how a clip would
+   be configured. It had no consumers and no asset, so it documented an
+   intention as though it were an implementation. If a real clip ever arrives,
+   the rules that matter are in DESIGN.md.
    --------------------------------------------------------------------------- */
-
-export const videoDefaults = {
-  ambient: {
-    muted: true,
-    loop: true,
-    playsInline: true,
-    autoPlay: true,
-    preload: "metadata",
-  },
-  featured: {
-    muted: false,
-    loop: false,
-    playsInline: true,
-    autoPlay: false,
-    controls: true,
-    preload: "none",
-  },
-} as const;

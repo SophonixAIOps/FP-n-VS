@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
-import { SpecSection, SpecRow, SpecNote } from "@/components/specimen/Spec";
+import {
+  SpecSection,
+  SpecRow,
+  SpecNote,
+  specSlotSizes,
+  SPEC_HALF_SIZES,
+  SPEC_ROW_SIZES,
+} from "@/components/specimen/Spec";
 import { Eyebrow, Lead, Meta, SectionHeading } from "@/components/Typography";
 import { EditorialImage, ImageCaption } from "@/components/EditorialImage";
 import { PortfolioProject } from "@/components/PortfolioProject";
 import { Reveal } from "@/components/Reveal";
-import { images } from "@/lib/images";
+import { images, SIZES_FULL } from "@/lib/images";
 
 export const metadata: Metadata = { title: "Imagery" };
+
+/** One cell of the crop table: three up at `lg`, two at `sm`, with 2rem gaps. */
+const CROP_CELL_SIZES =
+  "(min-width: 75rem) 339px, (min-width: 64rem) calc(30vw - 22px), (min-width: 40rem) calc(45vw - 16px), 90vw";
 
 const crops = [
   { ar: "panorama", label: "Panorama", ratio: "21:9", use: "Section dividers, closing frames." },
@@ -47,7 +58,7 @@ export default function ImageryPage() {
               <div key={crop.ar}>
                 <EditorialImage
                   image={first}
-                  size="third"
+                  sizes={CROP_CELL_SIZES}
                   reveal="none"
                   ar={{ desktop: crop.ar, mobile: crop.ar }}
                 />
@@ -70,7 +81,7 @@ export default function ImageryPage() {
             <div>
               <EditorialImage
                 image={images.cta}
-                size="half"
+                sizes={SPEC_HALF_SIZES}
                 reveal="none"
                 ar={{ desktop: "panorama", mobile: "editorial" }}
                 caption={<ImageCaption image={images.cta} />}
@@ -103,7 +114,7 @@ export default function ImageryPage() {
           description="Four patterns, and only four. Scroll each back out of view and in again to replay it."
         >
           <SpecRow label="Reveal A" note="maskUp · 1200ms">
-            <EditorialImage image={second} size="content" reveal="maskUp" />
+            <EditorialImage image={second} sizes={SPEC_ROW_SIZES} reveal="maskUp" />
             <p className="type-caption mt-3">
               Vertical mask opening upward, with the image drifting from 1.12 to
               rest behind it. The default for a large frame.
@@ -111,7 +122,7 @@ export default function ImageryPage() {
           </SpecRow>
 
           <SpecRow label="Reveal B" note="maskRight · 1200ms">
-            <EditorialImage image={third} size="content" reveal="maskRight" />
+            <EditorialImage image={third} sizes={SPEC_ROW_SIZES} reveal="maskRight" />
             <p className="type-caption mt-3">
               Horizontal mask. Reserved for images that enter beside text, where
               the sideways motion matches the reading direction.
@@ -119,7 +130,7 @@ export default function ImageryPage() {
           </SpecRow>
 
           <SpecRow label="Reveal C" note="scaleFade · 1200ms">
-            <EditorialImage image={fourth} size="content" reveal="scaleFade" />
+            <EditorialImage image={fourth} sizes={SPEC_ROW_SIZES} reveal="scaleFade" />
             <p className="type-caption mt-3">
               The quietest of the four. Use when several images reveal near each
               other and masks would read as busy.
@@ -129,7 +140,7 @@ export default function ImageryPage() {
           <SpecRow label="Reveal D" note="clipExpand · 1200ms">
             <EditorialImage
               image={images.hero}
-              size="content"
+              sizes={SPEC_ROW_SIZES}
               reveal="clipExpand"
               ar={{ desktop: "cinema", mobile: "wide" }}
             />
@@ -146,8 +157,13 @@ export default function ImageryPage() {
           description="Desktop only. Hover a frame — and tab to it, which does the same thing."
         >
           <div className="grid gap-8 md:grid-cols-2">
-            <PortfolioProject image={first} index={1} size="half" />
-            <PortfolioProject image={second} index={2} size="half" delay={0.08} />
+            <PortfolioProject image={first} index={1} sizes={SPEC_HALF_SIZES} />
+            <PortfolioProject
+              image={second}
+              index={2}
+              sizes={SPEC_HALF_SIZES}
+              delay={0.08}
+            />
           </div>
 
           <div className="mt-10">
@@ -169,7 +185,7 @@ export default function ImageryPage() {
             <div className="col-span-12 md:col-span-7">
               <EditorialImage
                 image={third}
-                size="offset"
+                sizes={specSlotSizes(7)}
                 reveal="maskUp"
                 ar={{ desktop: "wide", mobile: "wide" }}
                 caption={<ImageCaption image={third} />}
@@ -179,7 +195,7 @@ export default function ImageryPage() {
             <div className="col-span-8 md:col-span-4 md:col-start-9 md:mt-24">
               <EditorialImage
                 image={detailA}
-                size="detail"
+                sizes={specSlotSizes(4, 8)}
                 reveal="maskUp"
                 delay={0.1}
                 ar={{ desktop: "editorial", mobile: "editorial" }}
@@ -199,7 +215,7 @@ export default function ImageryPage() {
             <div className="col-span-10 col-start-3 md:col-span-6 md:col-start-7">
               <EditorialImage
                 image={detailB}
-                size="offset"
+                sizes={specSlotSizes(6, 10)}
                 reveal="scaleFade"
                 ar={{ desktop: "wide", mobile: "square" }}
                 caption={<ImageCaption image={detailB} />}
@@ -213,7 +229,7 @@ export default function ImageryPage() {
       <section className="mt-section-sm">
         <EditorialImage
           image={detailC}
-          size="full"
+          sizes={SIZES_FULL}
           reveal="maskUp"
           ar={{ desktop: "panorama", mobile: "cinema" }}
         />
@@ -265,8 +281,8 @@ export default function ImageryPage() {
                 "AVIF and WebP negotiated automatically by the CDN",
                 "Hero loads eagerly at high priority; everything else is lazy",
                 "Aspect ratio reserved on the wrapper — zero layout shift",
-                "A sizes value on every image, chosen from the presets",
-                "Mobile srcset capped at 1280px — phones never fetch 2560px",
+                "A sizes value on every image, measured from the grid it sits in",
+                "Mobile srcset capped at 1440px — phones never fetch 2560px",
                 "Quality fixed at 74, which is the point of diminishing returns",
               ].map((item) => (
                 <li key={item}>{item}</li>

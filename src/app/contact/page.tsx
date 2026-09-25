@@ -6,7 +6,7 @@ import { EditorialButton, EditorialLink } from "@/components/EditorialLink";
 import { EditorialImage } from "@/components/EditorialImage";
 import { Reveal } from "@/components/Reveal";
 import { InquiryForm } from "@/components/InquiryForm";
-import { images } from "@/lib/images";
+import { images, SIZES_SPLIT } from "@/lib/images";
 import { pageMetadata } from "@/lib/seo";
 import { STUDIO_EMAIL, studio } from "@/lib/studio";
 
@@ -69,7 +69,7 @@ export default async function ContactPage({
               <Reveal className="mt-14 lg:mt-20">
                 <EditorialImage
                   image={images.details[2]}
-                  size="offset"
+                  sizes={SIZES_SPLIT}
                   reveal="maskUp"
                 />
               </Reveal>
