@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:3002/robots.txt)",
+      "Bash(curl -s http://localhost:3002/sitemap.xml)",
+      "Bash(curl -s http://localhost:3002/)",
+      "Bash(node p10contrast.mjs)",
+      "Bash(node p10look.mjs)",
+      "Bash(node p10hover.mjs)",
+      "Bash(npx next *)",
+      "Bash(curl -s -o /dev/null http://localhost:3002/)",
+      "Bash(node p10resilience.mjs)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\DELL\\\\Desktop\\\\SophonixAI-Demo\\\\FP-n-VS\" -Filter \"*.md\")",
+      "Bash(Select-Object Name,Length)",
+      "Bash(node p10media.mjs)",
+      "Bash(tee media2.log)",
+      "Bash(npx tsc *)",
+      "Bash(node *)",
+      "Bash(git rm *)",
+      "Bash(npx eslint *)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Google/Chrome/Application/**)",
+      "Bash(/c/Program Files/Google/Chrome/Application/chrome.exe *)"
+    ]
+  }
+}

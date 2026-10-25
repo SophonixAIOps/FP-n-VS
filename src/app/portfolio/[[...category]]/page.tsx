@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/SiteShell";
 import {
@@ -237,74 +238,90 @@ export default async function PortfolioPage({
        * No badge, no label — the page is not a product listing.
        */}
       {cover && (
-        <Section space="sm" container={false}>
-          <EditorialImage
-            image={cover.image}
-            sizes={SIZES_FULL}
-            reveal="clipExpand"
-            priority
-            ar={{ desktop: "panorama", mobile: "portrait" }}
-          />
-          <Container width="wide" className="mt-8">
-            <EditorialGrid>
-              <GridItem span={6}>
-                <Reveal>
-                  <ProjectMeta
-                    title={cover.image.title}
-                    category={categoryLabel(cover.category)}
-                    date={cover.image.year}
-                    level="display-md"
-                    as="h2"
-                  />
-                </Reveal>
-              </GridItem>
-            </EditorialGrid>
-          </Container>
-        </Section>
+        <ViewTransition
+          key={`cover-${slug}`}
+          name="archive-cover"
+          share="auto"
+          enter="auto"
+          default="none"
+        >
+          <Section space="sm" container={false}>
+            <EditorialImage
+              image={cover.image}
+              sizes={SIZES_FULL}
+              reveal="clipExpand"
+              priority
+              ar={{ desktop: "panorama", mobile: "portrait" }}
+            />
+            <Container width="wide" className="mt-8">
+              <EditorialGrid>
+                <GridItem span={6}>
+                  <Reveal>
+                    <ProjectMeta
+                      title={cover.image.title}
+                      category={categoryLabel(cover.category)}
+                      date={cover.image.year}
+                      level="display-md"
+                      as="h2"
+                    />
+                  </Reveal>
+                </GridItem>
+              </EditorialGrid>
+            </Container>
+          </Section>
+        </ViewTransition>
       )}
 
       {/* 4 — The grid. */}
-      <Section space="md" container="wide">
-        <EditorialGrid className="gap-y-10">
-          <GridItem span={8}>
-            <Reveal>
-              <SectionHeading level="h2" as="h2">
-                {slug === "all" ? "The Archive" : categoryLabel(slug)}
-              </SectionHeading>
-              {/* Doubles as the visible confirmation that the filter applied. */}
-              <Meta className="mt-4 block">
-                {pieces.length} {pieces.length === 1 ? "frame" : "frames"}
-              </Meta>
-            </Reveal>
-          </GridItem>
-        </EditorialGrid>
+      <ViewTransition
+        key={`archive-${slug}`}
+        name="archive-grid"
+        share="auto"
+        enter="auto"
+        default="none"
+      >
+        <Section space="md" container="wide">
+          <EditorialGrid className="gap-y-10">
+            <GridItem span={8}>
+              <Reveal>
+                <SectionHeading level="h2" as="h2">
+                  {slug === "all" ? "The Archive" : categoryLabel(slug)}
+                </SectionHeading>
+                {/* Doubles as the visible confirmation that the filter applied. */}
+                <Meta className="mt-4 block">
+                  {pieces.length} {pieces.length === 1 ? "frame" : "frames"}
+                </Meta>
+              </Reveal>
+            </GridItem>
+          </EditorialGrid>
 
-        <EditorialGrid className="mt-16 gap-y-20 md:mt-24 md:gap-y-32">
-          {rest.map((piece, index) => (
-            <ArchiveFrame key={piece.image.id} piece={piece} index={index} />
-          ))}
-        </EditorialGrid>
+          <EditorialGrid className="mt-16 gap-y-20 md:mt-24 md:gap-y-32">
+            {rest.map((piece, index) => (
+              <ArchiveFrame key={piece.image.id} piece={piece} index={index} />
+            ))}
+          </EditorialGrid>
 
-        {/*
-         * The one invitation inside the archive, and it comes after the frames
-         * rather than before them — by this point the work has already made the
-         * case, so a hairline rail is enough to ask. The page's only button is
-         * still the one at the end.
-         */}
-        <Reveal className="mt-24 border-t border-border pt-10 md:mt-32">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <Eyebrow rule>Like what you see</Eyebrow>
-              <p className="type-body-lg mt-5 max-w-[32ch] text-text-muted text-pretty">
-                Tell us what you&rsquo;re planning and we&rsquo;ll talk it
-                through.
-              </p>
+          {/*
+           * The one invitation inside the archive, and it comes after the frames
+           * rather than before them — by this point the work has already made the
+           * case, so a hairline rail is enough to ask. The page's only button is
+           * still the one at the end.
+           */}
+          <Reveal className="mt-24 border-t border-border pt-10 md:mt-32">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div>
+                <Eyebrow rule>Like what you see</Eyebrow>
+                <p className="type-body-lg mt-5 max-w-[32ch] text-text-muted text-pretty">
+                  Tell us what you&rsquo;re planning and we&rsquo;ll talk it
+                  through.
+                </p>
+              </div>
+
+              <EditorialLink href="/contact">Book a Session</EditorialLink>
             </div>
-
-            <EditorialLink href="/contact">Book a Session</EditorialLink>
-          </div>
-        </Reveal>
-      </Section>
+          </Reveal>
+        </Section>
+      </ViewTransition>
 
       {/*
        * 5 — Film. A poster frame and nothing else: there is no film to play,

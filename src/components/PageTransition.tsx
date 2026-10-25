@@ -7,11 +7,20 @@ import { duration, ease } from "@/lib/motion";
 /**
  * Route transition — the turning page.
  *
- * Belongs in `app/template.tsx`, which React remounts on every navigation.
- * That remount is the trigger; no route observer is needed.
+ * Mounted in `app/layout.tsx` and keyed on the first path segment, so the veil
+ * marks a move between *sections* rather than on every URL change. Going from
+ * /portfolio to /services is a new place and earns the wipe; filtering the
+ * archive from /portfolio to /portfolio/weddings is the same place with
+ * different contents, so the veil holds and the grid crossfades instead — see
+ * the `ViewTransition` in the portfolio route.
+ *
+ * This lived in `template.tsx` until that distinction mattered. A template
+ * remounts on every navigation and so cannot tell those two cases apart; a
+ * `key` on a persistent layout gives the same remount-is-the-trigger
+ * behaviour at the granularity we actually want.
  *
  * The sequence, about 700ms end to end:
- *   1. An ivory veil already covers the viewport as the new route mounts.
+ *   1. An ivory veil already covers the viewport as the new section mounts.
  *   2. It retracts upward, wiping the new page into view.
  *   3. Content settles up behind it, overlapping the wipe so the two read as
  *      one movement rather than two steps.
@@ -30,15 +39,21 @@ import { duration, ease } from "@/lib/motion";
  * rules in globals.css neutralise the veil for the window before hydration.
  */
 
+/** First path segment. "/" is its own section so leaving home still wipes. */
+function sectionOf(pathname: string): string {
+  return pathname.split("/")[1] || "home";
+}
+
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const instant = { duration: 0 };
+  const section = sectionOf(pathname);
 
   return (
     <>
       <motion.div
-        key={`veil-${pathname}`}
+        key={`veil-${section}`}
         data-page-veil
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 bg-bg"
@@ -51,7 +66,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       />
 
       <motion.div
-        key={pathname}
+        key={section}
         data-page-enter
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

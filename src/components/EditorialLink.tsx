@@ -137,7 +137,9 @@ export function EditorialButton({
   const classes = cn(
     "group/btn type-nav inline-flex items-center justify-center gap-3",
     "px-7 py-4 rounded-none select-none",
-    "transition-all duration-[var(--duration-standard)] ease-editorial",
+    // Named rather than `all`: the state swap changes the label, and `all`
+    // would put a transition on any layout property that moves with it.
+    "transition-[background-color,border-color,color,opacity,transform] duration-[var(--duration-standard)] ease-editorial",
     "active:translate-y-px",
     variantClasses[variant][tone],
     state === "success" && "bg-success text-text-inverse",

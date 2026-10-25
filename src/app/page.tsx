@@ -118,6 +118,7 @@ export default function Page() {
           reveal="clipExpand"
           priority
           fill
+          parallax
           ar={{ desktop: "cinema", mobile: "portrait" }}
         />
 
@@ -324,6 +325,7 @@ export default function Page() {
           image={images.portfolio[3]}
           sizes={SIZES_FULL}
           reveal="clipExpand"
+          parallax
           ar={{ desktop: "cinema", mobile: "portrait" }}
           scrim="strong"
           position="bottom-left"
@@ -384,7 +386,12 @@ export default function Page() {
          * crop keeps the veil and the stones but loses the couple, and the alt
          * text describes them.
          */}
-        <EditorialImage image={images.cta} sizes={SIZES_FULL} reveal="maskUp" />
+        <EditorialImage
+          image={images.cta}
+          sizes={SIZES_FULL}
+          reveal="maskUp"
+          parallax
+        />
         <Container width="wide" className="mt-5">
           <Meta>The Long Veil — Pembrokeshire, Wales · 2024</Meta>
         </Container>

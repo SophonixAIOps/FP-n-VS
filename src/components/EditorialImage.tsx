@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
   aspectClass,
   aspectClassMd,
@@ -50,6 +51,54 @@ const revealVariantMap = {
   clipExpand,
 } as const;
 
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Drifts the photograph against the scroll so the frame reads as a window onto
+ * it rather than a box containing it.
+ *
+ * Three things make this safe to add to an element that is already animating:
+ *
+ * 1. It owns its own element. The mask writes `clip-path` and the drift writes
+ *    `scale`; a translate sharing either of those nodes would have to be
+ *    composed with them on every frame. A dedicated layer keeps each transform
+ *    on exactly one element.
+ * 2. The travel room is `inset`, not `scale`. Oversizing the layer by 6% a side
+ *    means the parallax never exposes an edge, without putting a second
+ *    transform on the node.
+ * 3. It never branches on `useReducedMotion`. The range is identical on the
+ *    server and the client, so the SSR'd transform always matches; the reduce
+ *    case is handled by the `[data-parallax]` rule in globals.css, which is how
+ *    the veil and the reveals are already neutralised.
+ *
+ * It is opt-in because `useScroll` attaches per target — worth it on a
+ * full-bleed frame, wasteful on every thumbnail in a grid.
+ */
+const PARALLAX_TRAVEL = "5%";
+
+function ParallaxLayer({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  // Negative to positive: the image lags the page, settling downward through
+  // the frame as the reader scrolls past it.
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [`-${PARALLAX_TRAVEL}`, PARALLAX_TRAVEL]
+  );
+
+  return (
+    <div ref={ref} className="absolute inset-0">
+      <motion.div data-parallax className="absolute -inset-[6%]" style={{ y }}>
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 export type ImageRevealName = keyof typeof revealVariantMap | "none";
 
 export type EditorialImageProps = {
@@ -68,6 +117,8 @@ export type EditorialImageProps = {
   ar?: { desktop: AspectName; mobile: AspectName };
   /** Stagger offset in seconds. */
   delay?: number;
+  /** Drifts the photograph against the scroll. Full-bleed frames only. */
+  parallax?: boolean;
   /**
    * Fills the nearest positioned ancestor instead of holding its own aspect
    * ratio. For full-viewport heroes, where the section sets the height.
@@ -85,12 +136,36 @@ export function EditorialImage({
   priority = false,
   ar,
   delay = 0,
+  parallax = false,
   fill = false,
   caption,
   className,
 }: EditorialImageProps) {
   const reduced = useReducedMotion();
   const ratio = ar ?? image.ar;
+
+  const frame = (
+    <picture>
+      <source
+        media={DESKTOP_BREAKPOINT}
+        srcSet={srcSet(image, ratio.desktop, desktopWidths)}
+        sizes={sizes}
+      />
+      <img
+        src={fallbackSrc(image, ratio.mobile)}
+        srcSet={srcSet(image, ratio.mobile, mobileWidths)}
+        sizes={sizes}
+        alt={image.alt}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        // Never "sync": it blocks the main thread on the one image the
+        // page can least afford to stall behind. fetchPriority already
+        // wins the hero the bandwidth it needs.
+        decoding={priority ? "auto" : "async"}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    </picture>
+  );
 
   const wrapperVariants =
     reduced || reveal === "none"
@@ -129,26 +204,7 @@ export function EditorialImage({
             className="absolute inset-0"
             variants={reduced ? undefined : imageDrift}
           >
-            <picture>
-              <source
-                media={DESKTOP_BREAKPOINT}
-                srcSet={srcSet(image, ratio.desktop, desktopWidths)}
-                sizes={sizes}
-              />
-              <img
-                src={fallbackSrc(image, ratio.mobile)}
-                srcSet={srcSet(image, ratio.mobile, mobileWidths)}
-                sizes={sizes}
-                alt={image.alt}
-                loading={priority ? "eager" : "lazy"}
-                fetchPriority={priority ? "high" : "auto"}
-                // Never "sync": it blocks the main thread on the one image the
-                // page can least afford to stall behind. fetchPriority already
-                // wins the hero the bandwidth it needs.
-                decoding={priority ? "auto" : "async"}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </picture>
+            {parallax ? <ParallaxLayer>{frame}</ParallaxLayer> : frame}
           </motion.div>
         </motion.div>
       </motion.div>

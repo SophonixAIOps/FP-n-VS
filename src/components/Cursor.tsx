@@ -35,6 +35,17 @@ const LABELS: Record<string, string> = {
   inquire: "Book",
 };
 
+/*
+ * The disc is always laid out at DISC px and scaled down to the dot, rather
+ * than animating width and height between the two. Those are layout
+ * properties: tweening them ran layout and paint on every frame of a 420ms
+ * transition, while a pointermove handler was already writing to the same
+ * element. Scale is composited, so the hover now costs nothing on the main
+ * thread.
+ */
+const DISC = 76;
+const DOT = 8;
+
 export function Cursor() {
   const reduced = useReducedMotion();
   const [enabled, setEnabled] = useState(false);
@@ -111,14 +122,22 @@ export function Cursor() {
       transition={{ duration: duration.fast }}
     >
       <motion.div
-        className="flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-ivory-100 mix-blend-difference"
-        animate={{
-          width: isLabelled ? 76 : 8,
-          height: isLabelled ? 76 : 8,
-        }}
+        className="flex items-center justify-center rounded-pill bg-ivory-100 mix-blend-difference"
+        // Centring moves into the motion transform because motion writes
+        // `transform` inline, which would otherwise overwrite a -translate-1/2
+        // utility class the moment scale starts animating.
+        style={{ width: DISC, height: DISC, x: "-50%", y: "-50%" }}
+        // Without this the disc mounts at scale 1 and animates down to the dot.
+        initial={false}
+        animate={{ scale: isLabelled ? 1 : DOT / DISC }}
         transition={{ duration: duration.standard, ease: ease.editorial }}
       >
-        <AnimatePresence>
+        {/*
+          * `wait` rather than the default: these are flex children, so two
+          * labels alive at once sit side by side and shove each other off
+          * centre for the length of the crossfade.
+          */}
+        <AnimatePresence mode="wait">
           {isLabelled && (
             <motion.span
               key={label}

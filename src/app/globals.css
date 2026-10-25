@@ -388,6 +388,32 @@
 }
 
 /* ==========================================================================
+   VIEW TRANSITIONS
+   Filtering the archive crossfades in place instead of wiping. The reader has
+   not gone anywhere — the container is the same and only its contents
+   changed — so the route veil is held back for these navigations. That is
+   decided in PageTransition, which keys on the path *section* rather than the
+   full pathname.
+   ========================================================================== */
+
+/*
+ * The transition overlay captures pointer events for its whole duration. On a
+ * filter, which a reader may well click twice in a row, that is the difference
+ * between a dropped selection and a responsive one.
+ */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Match the crossfade to the interface tempo; the browser default is quicker
+   and more abrupt than anything else on the site. */
+::view-transition-group(archive-grid),
+::view-transition-group(archive-cover) {
+  animation-duration: var(--duration-standard);
+  animation-timing-function: var(--ease-editorial);
+}
+
+/* ==========================================================================
    REDUCED MOTION
    Content must remain fully visible and legible with motion disabled.
    Reveal primitives also check this in JS; this block is the CSS backstop.
@@ -415,6 +441,16 @@
   }
 
   /*
+   * Parallax is driven by scroll position, not by a transition, so the
+   * duration override above cannot reach it and a JS branch would change the
+   * server HTML. The layer is pinned flat instead. It keeps its oversize
+   * inset, which `object-cover` absorbs without a visible seam.
+   */
+  [data-parallax] {
+    transform: none !important;
+  }
+
+  /*
    * The route veil ships covering the viewport and is retracted by script, so
    * it is removed here rather than slowed: the transition override above
    * cannot touch a script-driven animation, and a veil that never retracts is
@@ -423,6 +459,18 @@
    */
   [data-page-veil] {
     display: none !important;
+  }
+
+  /*
+   * View transitions animate on the browser's own pseudo-element tree, which
+   * nothing in the blanket override above can reach. Zeroing the duration
+   * drops them back to the browser default — an instant swap.
+   */
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 
   [data-page-enter] {

@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import { Cursor } from "@/components/Cursor";
 import { JsonLd } from "@/components/JsonLd";
+import { PageTransition } from "@/components/PageTransition";
 import { studioGraph } from "@/lib/schema";
 import { SITE_URL, STUDIO_NAME } from "@/lib/studio";
 import "./globals.css";
@@ -77,14 +78,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          */}
         <noscript>
           <style>{`
-            [data-reveal],[data-drift],[data-page-enter]{
+            [data-reveal],[data-drift],[data-page-enter],[data-parallax]{
               opacity:1!important;transform:none!important;clip-path:none!important;
             }
             [data-page-veil]{display:none!important}
           `}</style>
         </noscript>
         <Providers>
-          {children}
+          {/*
+           * Here rather than in a template: the veil keys off the route
+           * section, so it has to survive navigations that stay inside one.
+           */}
+          <PageTransition>{children}</PageTransition>
           <Cursor />
         </Providers>
       </body>

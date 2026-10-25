@@ -42,12 +42,27 @@ export function Header({ tone = "dark", activeHref }: HeaderProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    function onScroll() {
+    // Scroll fires faster than the screen repaints, and every one of those
+    // events read window.scrollY. Coalescing to one read per frame keeps the
+    // layout read off the event handler and out of the browser's way.
+    let frame = 0;
+
+    function read() {
+      frame = 0;
       setScrolled(window.scrollY > SCROLL_THRESHOLD);
     }
-    onScroll();
+
+    function onScroll() {
+      if (frame) return;
+      frame = requestAnimationFrame(read);
+    }
+
+    read();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   // Once scrolled the bar is always ivory, so text is always dark.

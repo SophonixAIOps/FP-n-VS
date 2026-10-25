@@ -1,8 +1,10 @@
 "use client";
 
 import { useId, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/cn";
 import { EditorialButton } from "@/components/EditorialLink";
+import { duration, ease } from "@/lib/motion";
 import { serviceSlug, STUDIO_EMAIL } from "@/lib/studio";
 
 /**
@@ -192,11 +194,30 @@ function Field({
         })}
       </div>
 
-      {error && (
-        <p id={errorId} className="type-helper mt-2 text-error">
-          {error}
-        </p>
-      )}
+      {/*
+       * The message opens the space it needs rather than appearing in it. The
+       * spacing lives on the inner <p>, inside the clipped box — on the
+       * animating element it would survive the collapse to height 0 and leave
+       * a permanent gap under every valid field. `overflow-hidden` also opens
+       * a block formatting context, which is what stops that margin collapsing
+       * back out through the top.
+       */}
+      <AnimatePresence initial={false}>
+        {error && (
+          <motion.div
+            key="error"
+            className="overflow-hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: duration.fast, ease: ease.editorial }}
+          >
+            <p id={errorId} className="type-helper mt-2 text-error">
+              {error}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {help && (
         <p id={helpId} className="type-helper mt-2">
